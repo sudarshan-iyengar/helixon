@@ -2,7 +2,7 @@
 
 The "Code SDM and Auralization" folder is created starting from the SDM toolbox in Matlab.
 It contains all files from the Matlab toolbox in which changes were made to adapt it to our needs. 
-Furthermore, it also contains new Matlab files, folders with the measurements data, figures and etc. and wav files. 
+Furthermore, it also contains new Matlab files, folders with the data of the measurements, figures etc. and wav files. 
 ### New Matlab files
 - spai_srir.m: Calculates the SRIR from our measured dataset and visualizes it
 - spai_srir_b_auralization.m: Extension of the spai_srir.m file, calculates the SRIR and does the binaural rendering for each SRIR
