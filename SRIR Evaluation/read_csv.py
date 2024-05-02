@@ -9,6 +9,7 @@ def get_SRIR():
     srir_neg = read_SRIR('11_13_pos12_p_neg.csv', '11_13_pos12_neg.csv')
     return order_SRIR(srir_pos + srir_neg)
 
+
 def read_SRIR(file_p, file_doa):
     relative_path = 'SRIR Evaluation/csvs/' # 'csvs/'
     folder_path = os.path.join(os.getcwd(), relative_path)
@@ -25,8 +26,11 @@ def read_SRIR(file_p, file_doa):
         # Iterate through rows in parallel
         for row1, row2 in zip(reader1, reader2):
             # Append data from each row to respective lists
-            srir += [row1 + row2]
+            srir += [[float(row1[0])] + [float(x) for x in row2]]
+    srir = remove_zeros(srir)
     return srir
+
+
 def order_SRIR(arr):
     lengths = []
     for val in arr:
@@ -41,3 +45,10 @@ def order_SRIR(arr):
     # Extract the sorted arrays
     srir = [pair[1] for pair in sorted_combined]
     return srir
+
+
+'''
+    Remove all elements where norm of doa is zero
+'''
+def remove_zeros(srir):
+    return [element for element in srir if np.linalg.norm(element[-3:]) > 0]
