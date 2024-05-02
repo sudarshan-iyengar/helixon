@@ -5,7 +5,7 @@ import pandas as pd
 import csv
 import os
 
-from read_csv import get_SRIR, read_SRIR
+from read_csv import get_SRIR, read_SRIR, order_SRIR
 '''
     Normalize the length of the distance vector for a given point in the SRIR
 '''
@@ -57,11 +57,17 @@ def cluster_arrs(*arrs):
     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
 
 pot_srir = get_SRIR()
-true_srir = read_SRIR('pressure12.csv', 'doa12.csv')
+true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))
 # print(len(true_srir))
 # for k in true_srir:
 #     print(np.linalg.norm(k[-3:]))
+
+for i in range(0, len(true_srir)-1):
+    print(np.linalg.norm(true_srir[i+1][-3:])-np.linalg.norm(true_srir[i][-3:]))
+
+
 print(len(true_srir))
+
     #
     # # Concatenate DataFrames into one long array
     # combined_df = pd.concat(srir, ignore_index=True)

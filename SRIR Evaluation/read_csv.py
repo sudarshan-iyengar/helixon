@@ -52,3 +52,15 @@ def order_SRIR(arr):
 '''
 def remove_zeros(srir):
     return [element for element in srir if np.linalg.norm(element[-3:]) > 0]
+
+def get_error(ground, interp, window_size):
+    #trunctate ground to window_size
+
+    #for each value in ground:
+        #get the boundaries (in terms of length)
+        #find all values in interp, within the boundary
+        #we find the combined virtual source from these values -> cluster_arrs
+        #calculate rms
+
+        #at some point normalize all doa before we compare -> WORK WITH ANGLES INSTEAD
+        
