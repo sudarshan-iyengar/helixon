@@ -11,7 +11,7 @@ def get_SRIR():
 
 
 def read_SRIR(file_p, file_doa):
-    relative_path = 'SRIR Evaluation/csvs/' # 'csvs/'
+    relative_path = 'csvs/' # 'SRIR Evaluation/csvs/'
     folder_path = os.path.join(os.getcwd(), relative_path)
     # Iterate over pos CSV
 
@@ -90,9 +90,11 @@ def normalize_len(arr):
 def get_error(ground, interp, window_size):
     #trunctate ground to window_size
     virtual_interp = []
-    ground =  ground[:window_size]
-    
-    for i in range (0,len(ground)):
+    ground = ground[:window_size]
+    bottom = 0
+    for i in range(0, len(ground)):
+        # if i % 5000 == 0:
+        #     print(i)
         cur_len = np.linalg.norm(interp[i][-3:])
         upper = 0
         lower = 0
@@ -105,10 +107,18 @@ def get_error(ground, interp, window_size):
         
         #find all values in interp, within the boundary
         cluster = []
-        for i in range(0, len(interp)):
-            val = np.linalg.norm(interp[i][-3:])
+
+
+        #print(bottom)
+        updated_bottom = False
+        for j in range(bottom, len(interp)):
+            val = np.linalg.norm(interp[j][-3:])
             if val >= lower and val < upper:
-                cluster += [interp[i]]
+                if not updated_bottom:
+                    bottom = j
+                    updated_bottom = True
+                cluster += [interp[j]]
+
             if val > upper:
                 break
         
