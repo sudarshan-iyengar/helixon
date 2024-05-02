@@ -5,9 +5,8 @@ import os
 def get_SRIR():
     srir_pos = []
     srir_neg = []
-    relative_path = 'csvs/'
+    relative_path = 'SRIR Evaluation/csvs/'
     folder_path = os.path.join(os.getcwd(), relative_path)
-
 
     # Iterate over pos CSV
     for filename in os.listdir(folder_path):
