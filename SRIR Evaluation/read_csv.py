@@ -55,7 +55,7 @@ def remove_zeros(srir):
 
 def get_error(ground, interp, window_size):
     #trunctate ground to window_size
-
+    ground =  ground[:window_size]
     #for each value in ground:
         #get the boundaries (in terms of length)
         #find all values in interp, within the boundary
@@ -63,4 +63,5 @@ def get_error(ground, interp, window_size):
         #calculate rms
 
         #at some point normalize all doa before we compare -> WORK WITH ANGLES INSTEAD
+    for i in range(0, len(ground)):
         
