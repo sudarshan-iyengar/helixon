@@ -53,6 +53,38 @@ def order_SRIR(arr):
 def remove_zeros(srir):
     return [element for element in srir if np.linalg.norm(element[-3:]) > 0]
 
+'''
+    Calculate average virtual source
+'''
+def cluster_arrs(arrs):
+    sum_of_p = 0
+
+    sum_of_x = 0
+    sum_of_y = 0
+    sum_of_z = 0
+
+    for arr in arrs:
+        arr = normalize_len(arr)
+        sum_of_p += arr[0]
+        sum_of_x += arr[0]*arr[1]
+        sum_of_y += arr[0]*arr[2]
+        sum_of_z += arr[0]*arr[3]
+
+    #sum_of_x = sum_of_x/sum_of_p
+
+    p_avg = sum_of_p/len(arrs)
+    return [p_avg, sum_of_x, sum_of_y, sum_of_z]
+
+
+'''
+    Normalize the length of the distance vector for a given point in the SRIR
+'''
+def normalize_len(arr):
+    if len(arr) < 4:
+        return arr
+    arr[-3:] = arr[-3:] / np.linalg.norm(arr[-3:])
+    return arr
+
 def get_error(ground, interp, window_size):
     #trunctate ground to window_size
     ground =  ground[:window_size]
@@ -64,4 +96,4 @@ def get_error(ground, interp, window_size):
 
         #at some point normalize all doa before we compare -> WORK WITH ANGLES INSTEAD
     for i in range(0, len(ground)):
-        
+
