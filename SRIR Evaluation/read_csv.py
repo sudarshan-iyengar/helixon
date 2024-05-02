@@ -91,18 +91,27 @@ def get_error(ground, interp, window_size):
     ground =  ground[:window_size]
     
     for i in range (0,len(ground)):
+        cur_len = np.linalg.norm(interp[i][-3:])
         upper = 0
         lower = 0
         #get the boundaries (in terms of length)
         if i != 0:
-            lower = np.linalg.norm(ground[i][-3:]) - np.linalg.norm(ground[i-1][-3:])
+            lower = cur_len - (cur_len - np.linalg.norm(ground[i-1][-3:]))/2
         if i != len(ground)-1:
-            upper = np.linalg.norm(ground[i+1][-3:]) - np.linalg.norm(ground[i][-3:])
+            upper = cur_len + (np.linalg.norm(ground[i+1][-3:]) - cur_len)/2
 
         
         #find all values in interp, within the boundary
-
+        cluster = []
+        for i in range(0, len(interp)):
+            val = np.linalg.norm(interp[i][-3:])
+            if val >= lower and val < upper:
+                cluster += interp[i]
+            
+            if val > upper:
+                break
         
+                
         #we find the combined virtual source from these values -> cluster_arrs
         #calculate rms
 
