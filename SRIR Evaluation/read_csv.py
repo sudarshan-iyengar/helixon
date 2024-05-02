@@ -87,10 +87,22 @@ def normalize_len(arr):
 
 def get_error(ground, interp, window_size):
     #trunctate ground to window_size
+    virtual_interp = []
     ground =  ground[:window_size]
-    #for each value in ground:
+    
+    for i in range (0,len(ground)):
+        upper = 0
+        lower = 0
         #get the boundaries (in terms of length)
+        if i != 0:
+            lower = np.linalg.norm(ground[i][-3:]) - np.linalg.norm(ground[i-1][-3:])
+        if i != len(ground)-1:
+            upper = np.linalg.norm(ground[i+1][-3:]) - np.linalg.norm(ground[i][-3:])
+
+        
         #find all values in interp, within the boundary
+
+        
         #we find the combined virtual source from these values -> cluster_arrs
         #calculate rms
 
