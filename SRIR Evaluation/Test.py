@@ -57,6 +57,8 @@ def cluster_arrs(*arrs):
     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
 
 print(len(get_SRIR()))
+# for k in val:
+#     print(np.linalg.norm(k[-3:]))
     #
     # # Concatenate DataFrames into one long array
     # combined_df = pd.concat(srir, ignore_index=True)

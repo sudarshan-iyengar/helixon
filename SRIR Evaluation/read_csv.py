@@ -1,43 +1,43 @@
+import numpy as np
 import pandas as pd
 import csv
 import os
 
+
 def get_SRIR():
-    srir_pos = []
-    srir_neg = []
+    srir_pos = read_SRIR('11_13_pos12_p_pos.csv', '11_13_pos12_pos.csv')
+    srir_neg = read_SRIR('11_13_pos12_p_neg.csv', '11_13_pos12_neg.csv')
+    return order_SRIR(srir_pos + srir_neg)
+
+def read_SRIR(file_p, file_doa):
     relative_path = 'csvs/'
     folder_path = os.path.join(os.getcwd(), relative_path)
-
-
     # Iterate over pos CSV
-    for filename in os.listdir(folder_path):
-        file1_path = os.path.join(folder_path, "11_13_pos12_p_pos.csv")
-        file2_path = os.path.join(folder_path, "11_13_pos12_pos.csv")
 
-        # Open and read both CSV files in parallel
-        with open(file1_path, 'r') as file1, open(file2_path, 'r') as file2:
-            reader1 = csv.reader(file1)
-            reader2 = csv.reader(file2)
+    file1_path = os.path.join(folder_path, file_p)
+    file2_path = os.path.join(folder_path, file_doa)
+    srir = []
+    # Open and read both CSV files in parallel
+    with open(file1_path, 'r') as file1, open(file2_path, 'r') as file2:
+        reader1 = csv.reader(file1)
+        reader2 = csv.reader(file2)
 
-            # Iterate through rows in parallel
-            for row1, row2 in zip(reader1, reader2):
-                # Append data from each row to respective lists
-                srir_pos += [row1 + row2]
-    # Iterate over pos CSV
-    for filename in os.listdir(folder_path):
-        file1_path = os.path.join(folder_path, "11_13_pos12_p_neg.csv")
-        file2_path = os.path.join(folder_path, "11_13_pos12_neg.csv")
+        # Iterate through rows in parallel
+        for row1, row2 in zip(reader1, reader2):
+            # Append data from each row to respective lists
+            srir += [row1 + row2]
+    return srir
+def order_SRIR(arr):
+    lengths = []
+    for val in arr:
+        lengths += [np.linalg.norm(val[-3:])]
 
-        # Open and read both CSV files in parallel
-        with open(file1_path, 'r') as file1, open(file2_path, 'r') as file2:
-            reader1 = csv.reader(file1)
-            reader2 = csv.reader(file2)
+    # Combine the two arrays into pairs
+    combined = list(zip(lengths, arr))
 
-            # Iterate through rows in parallel
-            for row1, row2 in zip(reader1, reader2):
-                # Append data from each row to respective lists
-                srir_neg += [row1 + row2]
+    # Sort the combined list based on the values from array1
+    sorted_combined = sorted(combined, key=lambda x: x[0])
 
-    # print("pos len: " + str(len(srir_pos)) )
-    # print("neg len: " + str(len(srir_neg)) )
-    return srir_pos + srir_neg
+    # Extract the sorted arrays
+    srir = [pair[1] for pair in sorted_combined]
+    return srir
