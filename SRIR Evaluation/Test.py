@@ -5,7 +5,7 @@ import pandas as pd
 import csv
 import os
 
-from read_csv import get_SRIR, read_SRIR, order_SRIR
+from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error
 '''
     Normalize the length of the distance vector for a given point in the SRIR
 '''
@@ -62,11 +62,11 @@ true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))
 # for k in true_srir:
 #     print(np.linalg.norm(k[-3:]))
 
-for i in range(0, len(true_srir)-1):
-    print(np.linalg.norm(true_srir[i+1][-3:])-np.linalg.norm(true_srir[i][-3:]))
+# for i in range(0, len(true_srir)-1):
+#     print(np.linalg.norm(true_srir[i+1][-3:])-np.linalg.norm(true_srir[i][-3:]))
 
 
-print(len(true_srir))
+# print(len(true_srir))
 
     #
     # # Concatenate DataFrames into one long array
@@ -78,7 +78,7 @@ print(len(true_srir))
 
 
 
-
+get_error(true_srir, pot_srir, 40000)
 
 
 

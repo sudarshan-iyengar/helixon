@@ -57,6 +57,8 @@ def remove_zeros(srir):
     Calculate average virtual source
 '''
 def cluster_arrs(arrs):
+    if len(arrs) == 0:
+        return [0,0,0,0]
     sum_of_p = 0
 
     sum_of_x = 0
@@ -106,15 +108,19 @@ def get_error(ground, interp, window_size):
         for i in range(0, len(interp)):
             val = np.linalg.norm(interp[i][-3:])
             if val >= lower and val < upper:
-                cluster += interp[i]
-            
+                cluster += [interp[i]]
             if val > upper:
                 break
         
-                
+            
         #we find the combined virtual source from these values -> cluster_arrs
+        virtual_src = cluster_arrs(cluster)
+        virtual_interp += [virtual_src]
+
+    print(len(virtual_interp))
+    return virtual_interp
         #calculate rms
+        
 
         #at some point normalize all doa before we compare -> WORK WITH ANGLES INSTEAD
-    for i in range(0, len(ground)):
 
