@@ -10,7 +10,7 @@ def get_SRIR():
     return order_SRIR(srir_pos + srir_neg)
 
 def read_SRIR(file_p, file_doa):
-    relative_path = 'csvs/'
+    relative_path = 'SRIR Evaluation/csvs/' # 'csvs/'
     folder_path = os.path.join(os.getcwd(), relative_path)
     # Iterate over pos CSV
 
