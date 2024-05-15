@@ -131,6 +131,8 @@ def get_error(ground, interp, window_size):
     return virtual_interp
         #calculate rms
         
+def rms_error(true_srir, interp_srir):
 
         #at some point normalize all doa before we compare -> WORK WITH ANGLES INSTEAD
 
+###########################
