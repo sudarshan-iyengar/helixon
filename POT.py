@@ -5,10 +5,7 @@ from ot import dist
 
 class POT:
     """
-    Virtual Source Optimal Transport (aka. PCOT v2.0)
-
-    Finds optimal transport couplings and interpolates between point clouds.
-    v2.0 changes the cost function to be relative to expected movement!
+    Partial Optimal Transport
 
     Args:
         PC1 (dict): Point cloud 1 (with keys 'pos', 'mass', 'n')
@@ -24,36 +21,48 @@ class POT:
         self.PC2 = PC2
         self.distEx = distEx
         self.distTol = distTol
+        self.T = 0
 
-        # Prepare cost matrix (distance-based)
-        q = 2
-        C = dist(PC1['pos'], PC2['pos'], metric='sqeuclidean').astype(np.float16)
+        # Prepare scost matrix
+        C = dist(PC1['pos'], PC2['pos'], metric='sqeuclidean')#.astype(np.float16)
+        print("COST MATRIX SHAPE: ")
+        print(C.shape)
+
 
 
         # Determine dummy cost
         self.dumCost = (self.distEx * self.distTol) ** 2
+        print("DUMMY COST: " + str(self.dumCost))
 
         # sRatio optimizer
-        sVec = np.arange(1, -0.01, -0.01)
+        sVec = np.arange(0.01,1.01,0.01)
         sLen = len(sVec)
         costCoarse = np.zeros(sLen)
 
         for sInd in range(sLen):
-
             # Determine max amount of mass (s)
             maxS = min(np.sum(np.abs(PC1['mass'])), np.sum(np.abs(PC2['mass'])))
             s = sVec[sInd] * maxS
+            print("mass transported: "+ str(s) + " index: " + str(sInd))
 
             # Optimization using partial_wasserstein
-            Tx, log = partial_wasserstein(PC1['mass'], PC2['mass'], C, s, log=True)
+            Tx, log = partial_wasserstein(a=PC1['mass'], b=PC2['mass'], M=C, m=s, log=True)
+            print("DONE WITH OBTAINING TX ONCE")
 
             if np.isnan(Tx).any():
                 print("Warning: Transport matrix contains NaN elements.")
 
+            print("Number of non-zeros in Tx: " + str(np.count_nonzero(Tx)))
             costCoarse[sInd] = log['cost']
-            if (sInd > 0) and (costCoarse[sInd] > costCoarse[sInd - 1]):
+            print("Cost coarse at index " + str(sInd))
+            
+            if (sInd > 0) and (costCoarse[sInd] < costCoarse[sInd - 1]):
                 # Stopping condition, don't update optimal values
                 print(f"Found optimal sRatio = {self.sRatOpt}")
+                self.Tx = Tx
+                self.T = Tx
+                self.sRatOpt=sVec[sInd]
+                self.sOpt=self.sRatOpt * maxS
                 break
             else:
                 # Improved, save data
@@ -85,9 +94,10 @@ class POT:
         I, J = np.where(Ttmk)
         TM = Ttmk[I, J]
         numTm = len(TM)
+        k_array = np.array([k])
 
         # Calculate transported mass positions at interp value k
-        posTm = (1 - k)[:, None] * self.PC1['pos'][I] + k[:, None] * self.PC2['pos'][J]
+        posTm = (1 - k_array)[:, None] * self.PC1['pos'][I] + k_array[:, None] * self.PC2['pos'][J]
 
         # 3. Stationary Mass (SM) - Handled internally by partial_wasserstein
 
