@@ -31,7 +31,7 @@ doa_data = []
 
 for i in range(len(pressure_files)):
     df_pressure = pd.read_csv(pressure_files[i], header=None).values.flatten()#.astype(np.float16)
-    df_pressure = df_pressure[400:40000]#.astype(np.float16)
+    df_pressure = df_pressure[400:30000]#.astype(np.float16)
     print("PRESSURE SHAPE: ")
     print(df_pressure.shape)
     print(df_pressure[0] )
@@ -39,7 +39,7 @@ for i in range(len(pressure_files)):
 
 
     df_doa = pd.read_csv(doa_files[i], header=None).values#.astype(np.float16)
-    df_doa = df_doa[400:40000]#.astype(np.float16)
+    df_doa = df_doa[400:30000]#.astype(np.float16)
     print("DOA SHAPE: ")
     print(df_doa.shape)
     print(df_doa[0])
@@ -60,12 +60,12 @@ for i in range(len(pressure_files)):
     p_w_neg.append(p_neg)
     doa_data.append(df_doa)
 
-doa_data[0] = doa_data[0][0:10000]
-doa_data[1] = doa_data[1][0:10000]
-p_w_pos[0] = p_w_pos[0][0:10000]
-p_w_pos[1] = p_w_pos[1][0:10000]
-p_w_neg[0] = p_w_neg[0][0:10000]
-p_w_neg[1] = p_w_neg[1][0:10000]
+doa_data[0] = doa_data[0][0:20000]
+doa_data[1] = doa_data[1][0:20000]
+p_w_pos[0] = p_w_pos[0][0:20000]
+p_w_pos[1] = p_w_pos[1][0:20000]
+p_w_neg[0] = p_w_neg[0][0:20000]
+p_w_neg[1] = p_w_neg[1][0:20000]
 
 # Create point clouds for positive and negative pressures
 PC2_pos = {'pos': doa_data[0].reshape(-1,3), 'mass': p_w_pos[0], 'n': len(doa_data[0])}
