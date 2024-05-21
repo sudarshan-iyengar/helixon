@@ -6,18 +6,24 @@ import csv
 import os
 
 from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error, rms_standard, combinePosNeg
+
 '''
     Normalize the length of the distance vector for a given point in the SRIR
 '''
+
+
 def normalize_len(arr):
     if len(arr) < 4:
         return arr
     arr[-3:] = arr[-3:] / np.linalg.norm(arr[-3:])
     return arr
 
+
 '''
     Plot x and y of a set of SRIR points
 '''
+
+
 def plot2D(*arrs):
     # Extract x, y coordinates
     points = np.array(arrs)
@@ -34,9 +40,12 @@ def plot2D(*arrs):
     plt.grid(True)
     plt.show()
 
+
 '''
     Calculate average virtual source
 '''
+
+
 def cluster_arrs(*arrs):
     sum_of_p = 0
 
@@ -47,13 +56,13 @@ def cluster_arrs(*arrs):
     for arr in arrs:
         arr = normalize_len(arr)
         sum_of_p += arr[0]
-        sum_of_x += arr[0]*arr[1]
-        sum_of_y += arr[0]*arr[2]
-        sum_of_z += arr[0]*arr[3]
+        sum_of_x += arr[0] * arr[1]
+        sum_of_y += arr[0] * arr[2]
+        sum_of_z += arr[0] * arr[3]
 
-    #sum_of_x = sum_of_x/sum_of_p
+    # sum_of_x = sum_of_x/sum_of_p
 
-    p_avg = sum_of_p/len(arrs)
+    p_avg = sum_of_p / len(arrs)
     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
 
 def get_ground_truth(minPos, maxPos):
@@ -83,6 +92,13 @@ def get_all_SRIR(minPos, maxPos):
     return -1
 
 
+def get_ground_truth(minPos, maxPos):
+    ground_truths = []
+    for pos in range(minPos, maxPos+1):
+        ground_truths += [read_SRIR("ground", pos, "0")]
+    return ground_truths
+
+
 # pot_srir = get_SRIR()
 # true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))
 
@@ -96,16 +112,16 @@ def get_all_SRIR(minPos, maxPos):
 
 # print(len(true_srir))
 
-    #
-    # # Concatenate DataFrames into one long array
-    # combined_df = pd.concat(srir, ignore_index=True)
-    #
-    # # Convert DataFrame to array
-    # combined_array = combined_df.to_numpy()
+#
+# # Concatenate DataFrames into one long array
+# combined_df = pd.concat(srir, ignore_index=True)
+#
+# # Convert DataFrame to array
+# combined_array = combined_df.to_numpy()
 
 
-#combinePosNeg ("11_13_pos12_pos.csv", "11_13_pos12_neg.csv") #this is ok :)
-print(read_SRIR("pot", "12", "11-13")[:3])
+# combinePosNeg ("11_13_pos12_pos.csv", "11_13_pos12_neg.csv") #this is ok :)
+# print(read_SRIR("pot", "12", "11-13")[:3])
 
 # test = get_error(true_srir, pot_srir, 40000)
 # snipped = true_srir[:40000]
@@ -116,8 +132,49 @@ print(read_SRIR("pot", "12", "11-13")[:3])
 # print (rms_standard(snipped, test))
 
 
-
-
 # a1 = [1, 2,4,2]
 # a2 = [2, 2,2,0]
 # a3 = [1, 2,-2,0]
+
+# read all ground truths and put in array
+# TODO: IMPLEMENT READ ALL GROUND TRUTHS -> STORE IN ground_truth
+ground_truth_all = get_ground_truth(1,28)
+print(ground_truth_all[5])
+print(len(ground_truth_all))
+
+
+evaluation_techniques = ["lin", "pot"]  # ADD NEW AS NEEDED
+NUM_POSITIONS = 28
+WINDOW_SIZE = 30000
+
+# for loop iterating over different evaluation techniques
+
+
+# THIS LOOP WE EXECUTE TWICE. WE DO IT ONCE FOR MIN-MAX RESOLUTION AND THEN ONCE FOR ALL THE CENTRES
+
+# EVALUATE MIN TO MAX -> each time the center value is evaluated
+# for this we evaluate the following locations:
+# 2_1-3, 3_1-5, 4_1-7, ... , 15_1-30
+srirs_to_evaluate = []
+for i in range(2, 16):
+    srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
+
+# for now hardcode list:
+srirs_to_evaluate = ['2_1-3']
+
+print(srirs_to_evaluate)
+
+for technique in evaluation_techniques:
+
+    # for loop iterating over positions
+    for srir_location in srirs_to_evaluate:
+        position, interp_from = srir_location.split('_')
+
+        srir = read_SRIR(technique, position, interp_from)
+        ground_truth = ground_truth_all[int(position)]
+
+        error = get_error(ground_truth, srir, WINDOW_SIZE)
+
+        print(error)
+
+        # do something with the error here
