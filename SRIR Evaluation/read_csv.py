@@ -11,7 +11,7 @@ def get_SRIR():
 
 def read_SRIR(technique, position, interp_from):
 
-    relative_path = 'csvs\\' #SRIR Evaluation\\
+    relative_path = 'srir\\' #SRIR Evaluation\\
     if interp_from == "0":
         relative_path = 'ground_truth\\' #SRIR Evaluation\\
     folder_path = os.path.join(os.getcwd(), relative_path)
@@ -37,8 +37,11 @@ def read_SRIR(technique, position, interp_from):
 
 
 def combinePosNeg(file_pos_name, file_neg_name):
-    relative_path = 'SRIR Evaluation/csvs/'
+    relative_path = 'SRIR Evaluation\\csvs\\'
     folder_path = os.path.join(os.getcwd(), relative_path)
+
+    destination_path = 'SRIR Evaluation\\srir\\'
+    destination_folder_path = os.path.join(os.getcwd(), destination_path)
 
     filepos_path = os.path.join(folder_path, file_pos_name)
     fileneg_path = os.path.join(folder_path, file_neg_name)
@@ -49,7 +52,7 @@ def combinePosNeg(file_pos_name, file_neg_name):
     common = file_pos_name.rsplit("_", 1)[0]
 
     file_combined_name = f"{common}.csv"
-    file_combined_path = os.path.join(folder_path, file_combined_name)
+    file_combined_path = os.path.join(destination_folder_path, file_combined_name)
 
     try:
 
