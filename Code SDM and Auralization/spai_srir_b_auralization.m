@@ -8,13 +8,13 @@ cd(fileparts(tmp.Filename));
 clear tmp;
 
 % add base folder to path for dependencies to be available
-currentFolder = '/Users/wille/IIW/Master/R&D/SDM implementation';
+currentFolder = 'C:\Users\r0821191\Downloads\helixon-main\helixon-main\Code SDM and Auralization';
 %% Define the base folder and microphone prefixes
-baseFolder = 'measurements/';
+baseFolder = 'Team1_Recorded/';
 micPrefixes = {'micA_', 'micB_', 'micC_', 'micD_', 'micE_', 'micF_'};
 
 %% Define the suffixes of the impulse responses to load
-suffixes = {'003', '005', '006', '007', '008', '009', '010', '011', '012', '013', '014', '015', '016', '017', '018', '019', '020'};
+suffixes = {'003', '004', '005', '006', '007', '008', '009', '010', '011', '012', '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025', '026', '027', '028', '029', '030'};
 %% Initialize a cell array to hold the impulse responses
 % Each cell will contain the IRs from all mics for a particular suffix
 ir_locs = cell(length(suffixes), 1);
@@ -59,7 +59,7 @@ end
 
 % Define the length of the chirp signal
 lenChirp = length(inv_chirp_signal);
-length_ir = 50000;
+length_ir = 30000;
 
 % Initialize a cell array to store the computed impulse responses
 impulse_responses = cell(length(ir_locs), 1);
@@ -142,6 +142,42 @@ for idx = 1:length(irs)
     % Averaging across all microphones (columns)
     P_avg{idx} = mean(irs{idx}, 2);
     P{idx} = irs{idx};
+end
+
+%% SAVE SRIR TO CSV
+
+% Iterate through the cell array and write each matrix to a CSV file
+for i = 1:length(DOA)
+    % Generate a unique filename for each cell
+    csvFileName = sprintf('doa_%d.csv', i);
+    
+    % Ensure the current cell contains a numeric matrix
+    if isnumeric(DOA{i})
+        % Write the matrix to the CSV file
+        writematrix(DOA{i}, csvFileName);  % Use writematrix (available in MATLAB R2019a and later)
+        
+        % For older MATLAB versions, use csvwrite instead
+        % csvwrite(csvFileName, data{i});
+    else
+        error('Element %d in the cell array is not numeric.', i);
+    end
+end
+
+% Iterate through the cell array and write each matrix to a CSV file
+for i = 1:length(P_avg)
+    % Generate a unique filename for each cell
+    csvFileName = sprintf('P_%d.csv', i);
+    
+    % Ensure the current cell contains a numeric matrix
+    if isnumeric(P_avg{i})
+        % Write the matrix to the CSV file
+        writematrix(P_avg{i}, csvFileName);  % Use writematrix (available in MATLAB R2019a and later)
+        
+        % For older MATLAB versions, use csvwrite instead
+        % csvwrite(csvFileName, data{i});
+    else
+        error('Element %d in the cell array is not numeric.', i);
+    end
 end
 
 %% Post-processing: struct for visualization with a set of parameters
@@ -260,14 +296,14 @@ SOFAinfo(hrtfData);
 disp(['size [MxRxN]: ' num2str(size(hrtfs))])
 %% Load the music signal
 % Read stereo signal
-[S, fs] = audioread('120 BPM - ROCK.wav');
+[S, fs] = audioread('Take On Me.wav');
 %%
 hrtfs = hrtfs(1:2:end,:,:);
 plot(hrtfs(:,1,1))
 
 %% Make all pressures and DOAs the same length 
 %ids = [3, 5, 7, 9, 11, 13, 15]; %ids for resolution 30cm
-ids = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]; %ids for resolution 210cm
+ids = [3, 4, 5];%, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]; %ids for resolution 210cm
 [DOA_inter, P_inter] = extract_json(ids);
 
 threshold = 0.00001;
@@ -321,13 +357,19 @@ for locIdx = 2:length(P_avg)-1
     %     current_SRIR = P_inter{(locIdx-1)/2}; % for every second location do this (locIdx-1)/2 % for all interpolated once from position 3-15 do locIdx -2
     %     current_DOA = DOA_inter{(locIdx-1)/2};
     % end 
-    if locIdx == 2 || locIdx == 16
-        current_SRIR = P{locIdx};
-        current_DOA = DOA{locIdx};
-    else
-        current_SRIR = P_inter{locIdx-2}; % for every second location do this (locIdx-1)/2 % for all interpolated once from position 3-15 do locIdx -2
-        current_DOA = DOA_inter{locIdx-2};
-    end
+
+
+    % ADD HERE TO USE INTERPOLATION
+    % if locIdx == 2 || locIdx == 16
+    %     current_SRIR = P{locIdx};
+    %     current_DOA = DOA{locIdx};
+    % else
+    %     current_SRIR = P_inter{locIdx-2}; % for every second location do this (locIdx-1)/2 % for all interpolated once from position 3-15 do locIdx -2
+    %     current_DOA = DOA_inter{locIdx-2};
+    % end
+
+    current_SRIR = P{locIdx};
+    current_DOA = DOA{locIdx};
 
     % Synthesize the spatial impulse response with KU100 HRIR
     Hbin = cell(1,2);
@@ -342,9 +384,13 @@ for locIdx = 2:length(P_avg)-1
     Sr = resample(S, fs, hrtfData.Data.SamplingRate);  % Make sure the audio signal is resampled to match the HRIR sampling rate
     Y = zeros(size(Sr, 1), 2);
     
-    windowlength = 88127;
-	filterlength = 50000;
-	overlap = 44064;
+    % windowlength = 88127;
+	% filterlength = 50000;
+	% overlap = 44064;
+
+    windowlength = 33060;
+    filterlength = 20000;
+    overlap = windowlength/2;
 
 	disp('Started Auralization');tic
     Sr = resample(S, fs, hrtfData.Data.SamplingRate);  % Make sure the audio signal is resampled to match the HRIR sampling rate
@@ -357,7 +403,7 @@ for locIdx = 2:length(P_avg)-1
                     Y_short = zeros(windowlength/2, 2);
                 end
             else
-				end_window = (locIdx -1)*windowlength + 132062;
+				end_window = (locIdx -1)*windowlength + 73667;
                 start_window = end_window - max(filterlength,overlap) - windowlength; % long enough to auralize 
 				if start_window <= 0
 					start_window = 1;
