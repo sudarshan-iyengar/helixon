@@ -14,44 +14,6 @@ class POT:
         distTol (float): Tolerance for distance deviation from distEx, as a ratio
     """
 
-    def calc_cost(XA, XB, PA, PB, mue):
-        """
-        Compute the Euclidean distance between each pair of the two collections of inputs.
-
-        Parameters
-        ----------
-        XA : array_like
-            An m_A by n array of m_A original observations in an n-dimensional space.
-        XB : array_like
-            An m_B by n array of m_B original observations in an n-dimensional space.
-
-        Returns
-        -------
-        Y : ndarray
-            An m_A by m_B distance matrix is returned. For each i and j, the Euclidean
-            distance between XA[i] and XB[j] is computed and stored in the ij-th entry.
-        """
-        XA = np.asarray(XA, dtype=float)
-        XB = np.asarray(XB, dtype=float)
-
-        if XA.shape[1] != XB.shape[1]:
-            raise ValueError('XA and XB must have the same number of columns')
-
-        m_A, n = XA.shape
-        m_B = XB.shape[0]
-
-        Y = np.empty((m_A, m_B), dtype=float)
-
-        for i in range(m_A):
-            for j in range(m_B):
-                
-                diff = XA[i] - XB[j]
-                if(PA[i]*PB[j]<0):
-                    diff=diff+mue*np.abs(PA[i]-PB[j])                
-                dist = np.sqrt(np.sum(diff ** 2))
-                Y[i, j] = dist
-
-        return Y
 
     def __init__(self, PC1, PC2, distEx, distTol):
 
@@ -117,7 +79,7 @@ class POT:
         print("DUMMY COST: " + str(self.dumCost))
 
         # sRatio optimizer
-        sVec = np.arange(0.90,1.01,0.01)
+        sVec = np.arange(0.98,1.00,0.01)
         sLen = len(sVec)
         costCoarse = np.zeros(sLen)
 
@@ -257,56 +219,4 @@ class POT:
         return PCk
 
 
-    def interpolatePC(self, k):
-        """
-        Interpolates the partial OT problem at k, handling dummy nodes explicitly.
-
-        Args:
-            k (float): Interpolation parameter (between 0 and 1)
-
-        Returns:
-            dict: Interpolated point cloud (dictionary with 'pressure' and 'doa' keys)
-        """
-
-        assert 0 <= k <= 1, "k must be between 0 and 1."
-
-        T_prime = np.copy(self.Tx)
-        rk_list = []  # List to store interpolated pressures
-        zk_list = []  # List to store interpolated DOA values
-
-        # Handling Vanishing Points
-        for i, ui in enumerate(T_prime.sum(axis=1)[:-1]):
-            if ui > 0:
-                if np.linalg.norm(T_prime[i, :-1], ord=1) == 0:
-                    rk = (1 - k) * ui
-                    zk = self.PC1['pos'][i]
-                    rk_list.append(rk)
-                    zk_list.append(zk)
-                else:
-                    T_prime[i, :-1] += (1 - k) * ui * T_prime[i, :-1] / np.linalg.norm(T_prime[i, :-1], ord=1)
-
-        # Handling Appearing Points
-        for j, vj in enumerate(T_prime.sum(axis=0)[:-1]):
-            if vj > 0:
-                if np.linalg.norm(T_prime[:-1, j], ord=1) == 0:
-                    rk = k * vj
-                    zk = self.PC2['pos'][j]
-                    rk_list.append(rk)
-                    zk_list.append(zk)
-                else:
-                    T_prime[:-1, j] += k * vj * T_prime[:-1, j] / np.linalg.norm(T_prime[:-1, j], ord=1)
-
-        # Handling Moving Points
-        for i, j in zip(*np.where(T_prime[:-1, :-1] > 0)):
-            rk = T_prime[i, j]
-            zk = (1 - k) * self.PC1['pos'][i] + k * self.PC2['pos'][j]
-            rk_list.append(rk)
-            zk_list.append(zk)
-
-        # Create the dictionary with 'pressure' and 'doa' keys
-        PCk = {
-            'pressure': np.array(rk_list),
-            'doa': np.array(zk_list)
-        }
-
-        return PCk
+    
