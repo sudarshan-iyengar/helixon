@@ -26,7 +26,7 @@ class POT:
 
         # Prepare scost matrix
         #C = dist(PC1['pos'], PC2['pos'], metric='sqeuclidean')#.astype(np.float16)
-        C=self.calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0.0001)
+        C=self.calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0.0003)
         print("COST MATRIX SHAPE: ")
         print(C.shape)
 
