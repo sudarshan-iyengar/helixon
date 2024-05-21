@@ -117,7 +117,7 @@ class POT:
         print("DUMMY COST: " + str(self.dumCost))
 
         # sRatio optimizer
-        sVec = np.arange(0.01,1.01,0.01)
+        sVec = np.arange(0.90,1.01,0.01)
         sLen = len(sVec)
         costCoarse = np.zeros(sLen)
 
@@ -200,3 +200,113 @@ class POT:
     
 
     
+
+
+    def interpolatePC(self, k):
+        """
+        Interpolates the partial OT problem at k, handling dummy nodes explicitly.
+
+        Args:
+            k (float): Interpolation parameter (between 0 and 1)
+
+        Returns:
+            dict: Interpolated point cloud (dictionary with 'pressure' and 'doa' keys)
+        """
+
+        assert 0 <= k <= 1, "k must be between 0 and 1."
+
+        T_prime = np.copy(self.Tx)
+        rk_list = []  # List to store interpolated pressures
+        zk_list = []  # List to store interpolated DOA values
+
+        # Handling Vanishing Points
+        for i, ui in enumerate(T_prime.sum(axis=1)[:-1]):
+            if ui > 0:
+                if np.linalg.norm(T_prime[i, :-1], ord=1) == 0:
+                    rk = (1 - k) * ui
+                    zk = self.PC1['pos'][i]
+                    rk_list.append(rk)
+                    zk_list.append(zk)
+                else:
+                    T_prime[i, :-1] += (1 - k) * ui * T_prime[i, :-1] / np.linalg.norm(T_prime[i, :-1], ord=1)
+
+        # Handling Appearing Points
+        for j, vj in enumerate(T_prime.sum(axis=0)[:-1]):
+            if vj > 0:
+                if np.linalg.norm(T_prime[:-1, j], ord=1) == 0:
+                    rk = k * vj
+                    zk = self.PC2['pos'][j]
+                    rk_list.append(rk)
+                    zk_list.append(zk)
+                else:
+                    T_prime[:-1, j] += k * vj * T_prime[:-1, j] / np.linalg.norm(T_prime[:-1, j], ord=1)
+
+        # Handling Moving Points
+        for i, j in zip(*np.where(T_prime[:-1, :-1] > 0)):
+            rk = T_prime[i, j]
+            zk = (1 - k) * self.PC1['pos'][i] + k * self.PC2['pos'][j]
+            rk_list.append(rk)
+            zk_list.append(zk)
+
+        # Create the dictionary with 'pressure' and 'doa' keys
+        PCk = {
+            'pressure': np.array(rk_list),
+            'doa': np.array(zk_list)
+        }
+
+        return PCk
+
+
+    def interpolatePC(self, k):
+        """
+        Interpolates the partial OT problem at k, handling dummy nodes explicitly.
+
+        Args:
+            k (float): Interpolation parameter (between 0 and 1)
+
+        Returns:
+            dict: Interpolated point cloud (dictionary with 'pressure' and 'doa' keys)
+        """
+
+        assert 0 <= k <= 1, "k must be between 0 and 1."
+
+        T_prime = np.copy(self.Tx)
+        rk_list = []  # List to store interpolated pressures
+        zk_list = []  # List to store interpolated DOA values
+
+        # Handling Vanishing Points
+        for i, ui in enumerate(T_prime.sum(axis=1)[:-1]):
+            if ui > 0:
+                if np.linalg.norm(T_prime[i, :-1], ord=1) == 0:
+                    rk = (1 - k) * ui
+                    zk = self.PC1['pos'][i]
+                    rk_list.append(rk)
+                    zk_list.append(zk)
+                else:
+                    T_prime[i, :-1] += (1 - k) * ui * T_prime[i, :-1] / np.linalg.norm(T_prime[i, :-1], ord=1)
+
+        # Handling Appearing Points
+        for j, vj in enumerate(T_prime.sum(axis=0)[:-1]):
+            if vj > 0:
+                if np.linalg.norm(T_prime[:-1, j], ord=1) == 0:
+                    rk = k * vj
+                    zk = self.PC2['pos'][j]
+                    rk_list.append(rk)
+                    zk_list.append(zk)
+                else:
+                    T_prime[:-1, j] += k * vj * T_prime[:-1, j] / np.linalg.norm(T_prime[:-1, j], ord=1)
+
+        # Handling Moving Points
+        for i, j in zip(*np.where(T_prime[:-1, :-1] > 0)):
+            rk = T_prime[i, j]
+            zk = (1 - k) * self.PC1['pos'][i] + k * self.PC2['pos'][j]
+            rk_list.append(rk)
+            zk_list.append(zk)
+
+        # Create the dictionary with 'pressure' and 'doa' keys
+        PCk = {
+            'pressure': np.array(rk_list),
+            'doa': np.array(zk_list)
+        }
+
+        return PCk
