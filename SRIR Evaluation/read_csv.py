@@ -86,6 +86,50 @@ def combinePosNeg(file_pos_name, file_neg_name):
         print(f"An error occurred: {e}")
         return None
 
+def make_negative(file_name):
+    relative_path = 'csvs\\'
+    if "SRIR Eval" not in os.getcwd():
+        relative_path = 'SRIR Evaluation\\csvs\\'
+    folder_path = os.path.join(os.getcwd(), relative_path)
+
+    file_path = os.path.join(folder_path, file_name)
+
+    try:
+        # Create a temporary file to write the modified content
+        temp_file_path = file_path + '.tmp'
+
+        with open(file_path, 'r', newline='') as infile, \
+             open(temp_file_path, 'w', newline='') as outfile:
+
+            reader = csv.reader(infile)
+            writer = csv.writer(outfile)
+
+            for row in reader:
+                # There should be only one value per row
+                if len(row) == 1:
+                    value = row[0]
+                    try:
+                        num = float(value)  # Convert to float to handle numeric operations
+                        if num > 0:
+                            writer.writerow([str(-num)])  # Write the negated value
+                        else:
+                            writer.writerow(row)  # Keep the non-positive value as is
+                    except ValueError:
+                        # If the value cannot be converted to a float, keep it as is
+                        writer.writerow(row)
+                else:
+                    # Handle the case where a row has more than one value, if necessary
+                    writer.writerow(row)
+
+        # Replace the original file with the modified one
+        os.replace(temp_file_path, file_path)
+        print(f"CSV file {file_path} has been successfully modified.")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+
 
 def order_SRIR(arr):
     lengths = []
@@ -226,4 +270,3 @@ def rms_standard(true_srir, interp_srir):
     err_doa = np.sum(doa_sqrd)/len(doa_sqrd)
 
     return [err_p, err_doa]
-
