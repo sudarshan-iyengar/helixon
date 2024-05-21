@@ -10,10 +10,15 @@ def get_SRIR():
     return order_SRIR(srir_pos + srir_neg)
 
 def read_SRIR(technique, position, interp_from):
-
+    
     relative_path = 'srir\\' #SRIR Evaluation\\
+    if "SRIR Eval" not in os.getcwd():
+        relative_path = 'SRIR Evaluation\\srir\\'
+
     if interp_from == "0":
         relative_path = 'ground_truth\\' #SRIR Evaluation\\
+        if "SRIR Eval" not in os.getcwd():
+            relative_path = 'SRIR Evaluation\\ground_truth\\'
     folder_path = os.path.join(os.getcwd(), relative_path)
 
     file_name = f"{technique}_{position}_{interp_from}"

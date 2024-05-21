@@ -136,45 +136,52 @@ def get_ground_truth(minPos, maxPos):
 # a2 = [2, 2,2,0]
 # a3 = [1, 2,-2,0]
 
-# read all ground truths and put in array
-# TODO: IMPLEMENT READ ALL GROUND TRUTHS -> STORE IN ground_truth
-ground_truth_all = get_ground_truth(1,28)
-print(ground_truth_all[5])
-print(len(ground_truth_all))
+#combinePosNeg("pot_2_1-3_doa_pos.csv", "pot_2_1-3_doa_neg.csv")
+srir = read_SRIR("pot" , "2" , "1-3")
+
+print(len(srir))
+print(srir[:3])
+# # read all ground truths and put in array
+# # TODO: IMPLEMENT READ ALL GROUND TRUTHS -> STORE IN ground_truth
+# ground_truth_all = get_ground_truth(1,28)
+# print(ground_truth_all[5])
+# print(len(ground_truth_all))
 
 
-evaluation_techniques = ["lin", "pot"]  # ADD NEW AS NEEDED
-NUM_POSITIONS = 28
-WINDOW_SIZE = 30000
+# evaluation_techniques = ["lin", "pot"]  # ADD NEW AS NEEDED
+# NUM_POSITIONS = 28
+# WINDOW_SIZE = 30000
 
-# for loop iterating over different evaluation techniques
+# # for loop iterating over different evaluation techniques
 
 
-# THIS LOOP WE EXECUTE TWICE. WE DO IT ONCE FOR MIN-MAX RESOLUTION AND THEN ONCE FOR ALL THE CENTRES
+# # THIS LOOP WE EXECUTE TWICE. WE DO IT ONCE FOR MIN-MAX RESOLUTION AND THEN ONCE FOR ALL THE CENTRES
 
-# EVALUATE MIN TO MAX -> each time the center value is evaluated
-# for this we evaluate the following locations:
-# 2_1-3, 3_1-5, 4_1-7, ... , 15_1-30
-srirs_to_evaluate = []
-for i in range(2, 16):
-    srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
+# # EVALUATE MIN TO MAX -> each time the center value is evaluated
+# # for this we evaluate the following locations:
+# # 2_1-3, 3_1-5, 4_1-7, ... , 15_1-30
+# srirs_to_evaluate = []
+# for i in range(2, 16):
+#     srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
 
-# for now hardcode list:
-srirs_to_evaluate = ['2_1-3']
+# # for now hardcode list:
+# srirs_to_evaluate = ['2_1-3']
 
-print(srirs_to_evaluate)
+# print(srirs_to_evaluate)
 
-for technique in evaluation_techniques:
+# for technique in evaluation_techniques:
 
-    # for loop iterating over positions
-    for srir_location in srirs_to_evaluate:
-        position, interp_from = srir_location.split('_')
+#     # for loop iterating over positions
+#     for srir_location in srirs_to_evaluate:
+#         position, interp_from = srir_location.split('_')
 
-        srir = read_SRIR(technique, position, interp_from)
-        ground_truth = ground_truth_all[int(position)]
+#         srir = read_SRIR(technique, position, interp_from)
+#         ground_truth = ground_truth_all[int(position)]
 
-        error = get_error(ground_truth, srir, WINDOW_SIZE)
+#         error = get_error(ground_truth, srir, WINDOW_SIZE)
 
-        print(error)
+#         print(error)
 
-        # do something with the error here
+#         # do something with the error here
+
+
