@@ -117,22 +117,38 @@ def cluster_arrs(arrs):
         return [0,0,0,0]
     sum_of_p = 0
 
-    sum_of_x = 0
-    sum_of_y = 0
-    sum_of_z = 0
+    w_sum_of_x = 0
+    w_sum_of_y = 0
+    w_sum_of_z = 0
+
+    sum_of_len = 0
 
     # we get the average pressure, and the direction weighed by the pressure
     for arr in arrs:
+        sum_of_len += np.linalg.norm(arr[-3:])
+
         arr = normalize_len(arr)
         sum_of_p += arr[0]
-        sum_of_x += arr[0]*arr[1]
-        sum_of_y += arr[0]*arr[2]
-        sum_of_z += arr[0]*arr[3]
+        w_sum_of_x += arr[0]*arr[1]
+        w_sum_of_y += arr[0]*arr[2]
+        w_sum_of_z += arr[0]*arr[3]
 
-    #sum_of_x = sum_of_x/sum_of_p
+
+
+    len_avg = sum_of_len/len(arrs)
+    len_temp = np.linalg.norm([w_sum_of_x, w_sum_of_y, w_sum_of_z])
+    normalized_x = w_sum_of_x/len_temp
+    normalized_y = w_sum_of_y/len_temp
+    normalized_z = w_sum_of_z/len_temp
+
+    scaled_x = normalized_x * len_avg
+    scaled_y = normalized_y * len_avg
+    scaled_z = normalized_z * len_avg
+
+    # print("average len: ", len_avg, "; scaled len: ", np.linalg.norm([scaled_x, scaled_y, scaled_z]))
 
     p_avg = sum_of_p/len(arrs)
-    return [p_avg, sum_of_x, sum_of_y, sum_of_z]
+    return [p_avg, scaled_x, scaled_y, scaled_z]
 
 
 '''

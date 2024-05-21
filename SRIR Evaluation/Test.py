@@ -191,7 +191,8 @@ for technique in evaluation_techniques:
 
 
         # for i in range(0, min(len(ground_truth), len(srir))):
-        #     print(np.linalg.norm(ground_truth[i][-3:]), np.linalg.norm(srir[i][-3:]))
+           # print(ground_truth[i], srir[i])
+           # print(np.linalg.norm(ground_truth[i][-3:]), np.linalg.norm(srir[i][-3:]))
 
 
         error = get_error(ground_truth, srir, WINDOW_SIZE)
