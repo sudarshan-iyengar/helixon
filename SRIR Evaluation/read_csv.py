@@ -9,14 +9,15 @@ def get_SRIR():
     srir_neg = read_SRIR('11_13_pos12_p_neg.csv', '11_13_pos12_neg.csv')
     return order_SRIR(srir_pos + srir_neg)
 
-
-def read_SRIR(file_p, file_doa):
-    relative_path = 'csvs/' # 'SRIR Evaluation/csvs/'
+def read_SRIR(technique, position, interp_from):
+    relative_path = 'SRIR Evaluation\\csvs\\'
     folder_path = os.path.join(os.getcwd(), relative_path)
-    # Iterate over pos CSV
 
-    file1_path = os.path.join(folder_path, file_p)
-    file2_path = os.path.join(folder_path, file_doa)
+    file_name = f"{technique}_{position}_{interp_from}"
+
+    file1_path = os.path.join(folder_path, f"{file_name}_p.csv")
+    file2_path = os.path.join(folder_path, f"{file_name}_doa.csv")
+
     srir = []
     # Open and read both CSV files in parallel
     with open(file1_path, 'r') as file1, open(file2_path, 'r') as file2:
@@ -28,7 +29,50 @@ def read_SRIR(file_p, file_doa):
             # Append data from each row to respective lists
             srir += [[float(row1[0])] + [float(x) for x in row2]]
     srir = remove_zeros(srir)
+    #order_SRIR(srir)? --> here or outside of function?
     return srir
+
+
+def combinePosNeg (file_pos_name, file_neg_name):
+    relative_path = 'SRIR Evaluation/csvs/'
+    folder_path = os.path.join(os.getcwd(), relative_path)
+    # Iterate over pos CSV
+
+    filepos_path = os.path.join(folder_path, file_pos_name)
+    fileneg_path = os.path.join(folder_path, file_neg_name)
+
+    if not (file_neg_name.endswith("_neg.csv") and file_pos_name.endswith("_pos.csv")):
+            raise ValueError("Input files must follow the naming convention *_neg.csv and *_pos.csv")
+
+    common = file_pos_name.rsplit("_", 1)[0]
+
+    file_combined_name = f"{common}.csv"
+    file_combined_path = os.path.join(folder_path, file_combined_name)
+
+    try:
+
+        with open(filepos_path, 'r', newline='') as file_pos, \
+             open(fileneg_path, 'r', newline='') as file_neg, \
+             open(file_combined_path, 'w', newline='') as file_combined:
+
+            reader1 = csv.reader(file_pos)
+            reader2 = csv.reader(file_neg)
+            writer = csv.writer(file_combined)
+
+            # Write the contents of the first file
+            for row in reader1:
+                writer.writerow(row)
+
+            # Write the contents of the second file
+            for row in reader2:
+                writer.writerow(row)
+
+        print(f"CSV files {filepos_path} and {fileneg_path} have been successfully combined into {file_combined_path}.")
+        return file_combined_name
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 
 def order_SRIR(arr):
@@ -127,12 +171,32 @@ def get_error(ground, interp, window_size):
         virtual_src = cluster_arrs(cluster)
         virtual_interp += [virtual_src]
 
-    print(len(virtual_interp))
+    #print(len(virtual_interp))
     return virtual_interp
         #calculate rms
         
 def rms_error(true_srir, interp_srir):
-
+    return -1
         #at some point normalize all doa before we compare -> WORK WITH ANGLES INSTEAD
 
 ###########################
+def rms_standard(true_srir, interp_srir):
+    p_sqrd = []
+    doa_sqrd = []
+
+    normalize_len(true_srir)
+    for i in range (0, len(true_srir)):
+
+        #pressure error
+        e1 = (true_srir[i][0] - interp_srir[i][0])**2
+        e2 = np.sqrt((true_srir[i][1] - interp_srir[i][1])**2 + (true_srir[i][2] - interp_srir[i][2])**2 + (true_srir[i][3] - interp_srir[i][3])**2)
+
+        p_sqrd += [e1]
+        doa_sqrd += [e2]
+        
+
+    err_p = np.sqrt(np.sum(p_sqrd)/len(p_sqrd))
+    err_doa = np.sum(doa_sqrd)/len(doa_sqrd)
+        
+    return [err_p, err_doa]
+

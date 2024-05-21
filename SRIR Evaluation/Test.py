@@ -5,7 +5,7 @@ import pandas as pd
 import csv
 import os
 
-from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error
+from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error, rms_standard, combinePosNeg
 '''
     Normalize the length of the distance vector for a given point in the SRIR
 '''
@@ -56,8 +56,10 @@ def cluster_arrs(*arrs):
     p_avg = sum_of_p/len(arrs)
     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
 
-pot_srir = get_SRIR()
-true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))
+
+# pot_srir = get_SRIR()
+# true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))
+
 # print(len(true_srir))
 # for k in true_srir:
 #     print(np.linalg.norm(k[-3:]))
@@ -76,9 +78,16 @@ true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))
     # combined_array = combined_df.to_numpy()
 
 
+#combinePosNeg ("11_13_pos12_pos.csv", "11_13_pos12_neg.csv") #this is ok :)
+print(read_SRIR("pot", "12", "11-13")[:3])
 
-
-get_error(true_srir, pot_srir, 40000)
+# test = get_error(true_srir, pot_srir, 40000)
+# snipped = true_srir[:40000]
+# #print(len(test))
+# #print(len(true_srir[:40000]))
+# print (max(test[0]))
+# print (max(snipped[0]))
+# print (rms_standard(snipped, test))
 
 
 
