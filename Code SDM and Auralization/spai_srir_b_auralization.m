@@ -149,7 +149,7 @@ end
 % Iterate through the cell array and write each matrix to a CSV file
 for i = 1:length(DOA)
     % Generate a unique filename for each cell
-    csvFileName = sprintf('doa_%d.csv', i);
+    csvFileName = sprintf('ground_%d_0_doa.csv', i);
     
     % Ensure the current cell contains a numeric matrix
     if isnumeric(DOA{i})
@@ -166,7 +166,7 @@ end
 % Iterate through the cell array and write each matrix to a CSV file
 for i = 1:length(P_avg)
     % Generate a unique filename for each cell
-    csvFileName = sprintf('P_%d.csv', i);
+    csvFileName = sprintf('ground_%d_0_p.csv', i);
     
     % Ensure the current cell contains a numeric matrix
     if isnumeric(P_avg{i})
