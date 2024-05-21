@@ -68,7 +68,7 @@ def cluster_arrs(*arrs):
 
 def get_ground_truth(minPos, maxPos):
     ground_truths = []
-    for pos in range(minPos, maxPos):
+    for pos in range(minPos, maxPos+1):
         ground_truths += [read_SRIR("ground", pos, "0")]
     return ground_truths
 
@@ -112,10 +112,13 @@ def get_ground_truth(minPos, maxPos):
 
 # read all ground truths and put in array
 # TODO: IMPLEMENT READ ALL GROUND TRUTHS -> STORE IN ground_truth
-ground_truth_all = []
+ground_truth_all = get_ground_truth(1,28)
+print(ground_truth_all[5])
+print(len(ground_truth_all))
+
 
 evaluation_techniques = ["lin", "pot"]  # ADD NEW AS NEEDED
-NUM_POSITIONS = 30
+NUM_POSITIONS = 28
 WINDOW_SIZE = 30000
 
 # for loop iterating over different evaluation techniques
