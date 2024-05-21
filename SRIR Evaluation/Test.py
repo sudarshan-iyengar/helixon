@@ -56,6 +56,32 @@ def cluster_arrs(*arrs):
     p_avg = sum_of_p/len(arrs)
     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
 
+def get_ground_truth(minPos, maxPos):
+    ground_truth=[]
+    for pos in range(minPos, maxPos):
+        ground_truth += [read_SRIR("ground", pos, "0")]
+    return ground_truth
+
+
+
+def get_all_SRIR(minPos, maxPos):
+    technique_arr = ["pot", "lin"]
+    ground_arr = get_ground_truth(minPos, maxPos)
+
+    for technique in techniqueArr:
+        for pos in range(minPos, maxPos):
+
+            ground = ground_arr[pos]
+
+            interp_loc_arr = []
+            # figure out interpolation locations and add to array
+
+            for interp_loc in interp_loc_arr:
+                interp = read_SRIR(technique, pos, interp_loc)
+                error = rms_standard(interp, ground)
+            
+    return -1
+
 
 # pot_srir = get_SRIR()
 # true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))

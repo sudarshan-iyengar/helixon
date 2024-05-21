@@ -36,7 +36,6 @@ def read_SRIR(technique, position, interp_from):
 def combinePosNeg (file_pos_name, file_neg_name):
     relative_path = 'SRIR Evaluation/csvs/'
     folder_path = os.path.join(os.getcwd(), relative_path)
-    # Iterate over pos CSV
 
     filepos_path = os.path.join(folder_path, file_pos_name)
     fileneg_path = os.path.join(folder_path, file_neg_name)
@@ -59,11 +58,9 @@ def combinePosNeg (file_pos_name, file_neg_name):
             reader2 = csv.reader(file_neg)
             writer = csv.writer(file_combined)
 
-            # Write the contents of the first file
             for row in reader1:
                 writer.writerow(row)
 
-            # Write the contents of the second file
             for row in reader2:
                 writer.writerow(row)
 
