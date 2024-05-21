@@ -33,7 +33,7 @@ def read_SRIR(technique, position, interp_from):
     return srir
 
 
-def combinePosNeg (file_pos_name, file_neg_name):
+def combinePosNeg(file_pos_name, file_neg_name):
     relative_path = 'SRIR Evaluation/csvs/'
     folder_path = os.path.join(os.getcwd(), relative_path)
     # Iterate over pos CSV
@@ -172,14 +172,28 @@ def get_error(ground, interp, window_size):
         virtual_interp += [virtual_src]
 
     #print(len(virtual_interp))
+    print(len(virtual_interp))
+    rms_error(ground, virtual_interp)
     return virtual_interp
         #calculate rms
         
 def rms_error(true_srir, interp_srir):
+
+    for i in range(0, len(true_srir)):
+        true_srir[i] = normalize_len(true_srir[i])
+
+    count = 0
+    for i in interp_srir:
+        if i[0] == 0:
+            count += 1
+    print(count)
+
     return -1
+
         #at some point normalize all doa before we compare -> WORK WITH ANGLES INSTEAD
 
 ###########################
+
 def rms_standard(true_srir, interp_srir):
     p_sqrd = []
     doa_sqrd = []
@@ -193,10 +207,10 @@ def rms_standard(true_srir, interp_srir):
 
         p_sqrd += [e1]
         doa_sqrd += [e2]
-        
+
 
     err_p = np.sqrt(np.sum(p_sqrd)/len(p_sqrd))
     err_doa = np.sum(doa_sqrd)/len(doa_sqrd)
-        
+
     return [err_p, err_doa]
 
