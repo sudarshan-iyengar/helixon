@@ -26,7 +26,7 @@ class POT:
 
         # Prepare scost matrix
         #C = dist(PC1['pos'], PC2['pos'], metric='sqeuclidean')#.astype(np.float16)
-        C=self.calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0.001)
+        C=self.calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0.0001)
         print("COST MATRIX SHAPE: ")
         print(C.shape)
 
@@ -41,37 +41,58 @@ class POT:
         sLen = len(sVec)
         costCoarse = np.zeros(sLen)
 
+        last_successful_Tx = None
+        last_successful_sRatOpt = None
+        last_successful_sOpt = None
+
         for sInd in range(sLen):
-            # Determine max amount of mass (s)
-            maxS = min(np.sum(np.abs(PC1['mass'])), np.sum(np.abs(PC2['mass'])))
-            s = sVec[sInd] * maxS
-            print("mass transported: "+ str(s) + " index: " + str(sInd))
+            try:
+                # Determine max amount of mass (s)
+                maxS = min(np.sum(np.abs(PC1['mass'])), np.sum(np.abs(PC2['mass'])))
+                s = sVec[sInd] * maxS
+                print("mass transported: " + str(s) + " index: " + str(sInd))
 
-            # Optimization using partial_wasserstein
-            Tx, log = partial_wasserstein(a=PC1['mass'], b=PC2['mass'], M=C, m=s, log=True)
-            print("DONE WITH OBTAINING TX ONCE")
+                # Optimization using partial_wasserstein
+                Tx, log = partial_wasserstein(a=PC1['mass'], b=PC2['mass'], M=C, m=s, log=True)
+                print("DONE WITH OBTAINING TX ONCE")
 
-            if np.isnan(Tx).any():
-                print("Warning: Transport matrix contains NaN elements.")
+                if np.isnan(Tx).any():
+                    print("Warning: Transport matrix contains NaN elements.")
 
-            print("Number of non-zeros in Tx: " + str(np.count_nonzero(Tx)))
-            costCoarse[sInd] = log['cost']
-            print("Cost coarse at index " + str(sInd))
-            
-            if (sInd > 0) and (costCoarse[sInd] < costCoarse[sInd - 1]):
-                # Stopping condition, don't update optimal values
-                print(f"Found optimal sRatio = {self.sRatOpt}")
-                self.Tx = Tx
-                self.T = Tx
-                self.sRatOpt=sVec[sInd]
-                self.sOpt=self.sRatOpt * maxS
-                break
-            else:
-                # Improved, save data
-                self.Tx = Tx
-                self.T = Tx
-                self.sRatOpt = sVec[sInd]
-                self.sOpt = self.sRatOpt * maxS
+                print("Number of non-zeros in Tx: " + str(np.count_nonzero(Tx)))
+                costCoarse[sInd] = log['cost']
+                print("Cost coarse at index " + str(sInd))
+
+                if (sInd > 0) and (costCoarse[sInd] < costCoarse[sInd - 1]):
+                    # Stopping condition, don't update optimal values
+                    print(f"Found optimal sRatio = {self.sRatOpt}")
+                    self.Tx = last_successful_Tx  # Revert to the last successful value
+                    self.T = last_successful_Tx
+                    self.sRatOpt = last_successful_sRatOpt
+                    self.sOpt = last_successful_sOpt
+                    break
+                else:
+                    # Improved, save data
+                    last_successful_Tx = Tx  # Store the successful value
+                    last_successful_sRatOpt = sVec[sInd]
+                    last_successful_sOpt = sVec[sInd] * maxS
+
+                    self.Tx = Tx
+                    self.T = Tx
+                    self.sRatOpt = sVec[sInd]
+                    self.sOpt = sVec[sInd] * maxS
+
+            except Exception as e:
+                # Handle the error: print the error message and revert to the last successful values
+                print(f"Error at index {sInd}: {e}")
+                if last_successful_Tx is not None:
+                    print("Reverting to last successful transport matrix and values.")
+                    self.Tx = last_successful_Tx
+                    self.T = last_successful_Tx
+                    self.sRatOpt = last_successful_sRatOpt
+                    self.sOpt = last_successful_sOpt
+                break  # Optionally, you can break the loop or continue to try the next index
+
 
     def calc_cost(self, XA, XB, PA, PB, mue):
         """
