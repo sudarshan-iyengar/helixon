@@ -17,48 +17,6 @@ class POT:
 
     def __init__(self, PC1, PC2, distEx, distTol):
 
-        def calc_cost(XA, XB, PA, PB, mue):
-            """
-            Compute the Euclidean distance between each pair of the two collections of inputs.
-
-            Parameters
-            ----------
-            XA : array_like
-                An m_A by n array of m_A original observations in an n-dimensional space.
-            XB : array_like
-                An m_B by n array of m_B original observations in an n-dimensional space.
-
-            Returns
-            -------
-            Y : ndarray
-                An m_A by m_B distance matrix is returned. For each i and j, the Euclidean
-                distance between XA[i] and XB[j] is computed and stored in the ij-th entry.
-            """
-            XA = np.asarray(XA, dtype=float)
-            XB = np.asarray(XB, dtype=float)
-
-            if XA.shape[1] != XB.shape[1]:
-                raise ValueError('XA and XB must have the same number of columns')
-
-            m_A, n = XA.shape
-            m_B = XB.shape[0]
-
-            Y = np.empty((m_A, m_B), dtype=float)
-
-            for i in range(m_A):
-                for j in range(m_B):
-                    
-                    diff = XA[i] - XB[j]
-                                    
-                    dist = np.sqrt(np.sum(diff ** 2))
-
-                    if(PA[i]*PB[j]<0):
-                        dist=dist+mue*np.abs(PA[i]-PB[j])
-                        
-                    Y[i, j] = dist**2
-
-            return Y
-
         # Copy input data
         self.PC1 = PC1
         self.PC2 = PC2
@@ -68,7 +26,7 @@ class POT:
 
         # Prepare scost matrix
         #C = dist(PC1['pos'], PC2['pos'], metric='sqeuclidean')#.astype(np.float16)
-        C=calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0.1)
+        C=self.calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0)
         print("COST MATRIX SHAPE: ")
         print(C.shape)
 
@@ -115,7 +73,32 @@ class POT:
                 self.sRatOpt = sVec[sInd]
                 self.sOpt = self.sRatOpt * maxS
 
-    
+    def calc_cost(self, XA, XB, PA, PB, mue):
+        """
+        Compute the Euclidean distance between each pair of the two collections of inputs.
+
+        Parameters
+        ----------
+        XA : array_like
+            An m_A by n array of m_A original observations in an n-dimensional space.
+        XB : array_like
+            An m_B by n array of m_B original observations in an n-dimensional space.
+
+        Returns
+        -------
+        C : ndarray
+            An m_A by m_B distance matrix is returned. For each i and j, the Euclidean
+            distance between XA[i] and XB[j] is computed and stored in the ij-th entry.
+            Based on the absolute difference in pressure between the pressure values,
+            a penalty is added only pressures of opposite signs.
+        """
+        C = dist(XA,XB, metric='sqeuclidean')
+        sign_mask = (PA[:,np.newaxis]*PB[np.newaxis,:])<0
+        pressure_diff = np.abs(PA[:,np.newaxis]-PB[np.newaxis,:])
+        penalty = mue * pressure_diff * sign_mask
+        C+=penalty
+
+        return C    
 
     def interpPC(self, k):
         """
