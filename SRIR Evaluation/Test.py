@@ -65,31 +65,30 @@ def cluster_arrs(*arrs):
     p_avg = sum_of_p / len(arrs)
     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
 
-def get_ground_truth(minPos, maxPos):
-    ground_truth=[]
-    for pos in range(minPos, maxPos):
-        ground_truth += [read_SRIR("ground", pos, "0")]
-    return ground_truth
+# def get_ground_truth(minPos, maxPos):
+#     ground_truth=[]
+#     for pos in range(minPos, maxPos):
+#         ground_truth += [read_SRIR("ground", pos, "0")]
+#     return ground_truth
 
 
 
-def get_all_SRIR(minPos, maxPos):
-    technique_arr = ["pot", "lin"]
-    ground_arr = get_ground_truth(minPos, maxPos)
-
-    for technique in techniqueArr:
-        for pos in range(minPos, maxPos):
-
-            ground = ground_arr[pos]
-
-            interp_loc_arr = []
-            # figure out interpolation locations and add to array
-
-            for interp_loc in interp_loc_arr:
-                interp = read_SRIR(technique, pos, interp_loc)
-                error = rms_standard(interp, ground)
-            
-    return -1
+# def get_all_SRIR(minPos, maxPos):
+#     ground_arr = get_ground_truth(minPos, maxPos)
+#
+#     for technique in techniqueArr:
+#         for pos in range(minPos, maxPos):
+#
+#             ground = ground_arr[pos]
+#
+#             interp_loc_arr = []
+#             # figure out interpolation locations and add to array
+#
+#             for interp_loc in interp_loc_arr:
+#                 interp = read_SRIR(technique, pos, interp_loc)
+#                 error = rms_standard(interp, ground)
+#
+#     return -1
 
 
 def get_ground_truth(minPos, maxPos):
@@ -144,11 +143,11 @@ def get_ground_truth(minPos, maxPos):
 # read all ground truths and put in array
 # TODO: IMPLEMENT READ ALL GROUND TRUTHS -> STORE IN ground_truth
 ground_truth_all = get_ground_truth(1,28)
-print(ground_truth_all[5])
-print(len(ground_truth_all))
+# print(ground_truth_all[5])
+# print(len(ground_truth_all))
 
 
-evaluation_techniques = ["lin", "pot"]  # ADD NEW AS NEEDED
+evaluation_techniques = ["lin", "pot"]#, "pot"]  # ADD NEW AS NEEDED
 NUM_POSITIONS = 28
 WINDOW_SIZE = 30000
 
@@ -167,7 +166,7 @@ for i in range(2, 16):
 # for now hardcode list:
 srirs_to_evaluate = ['2_1-3']
 
-print(srirs_to_evaluate)
+# print(srirs_to_evaluate)
 
 for technique in evaluation_techniques:
 
@@ -178,9 +177,26 @@ for technique in evaluation_techniques:
         srir = read_SRIR(technique, position, interp_from)
         ground_truth = ground_truth_all[int(position)]
 
+        # max_len = 0
+        # for i in srir:
+        #     if  np.linalg.norm(i[-3:]) > max_len:
+        #         max_len = np.linalg.norm(i[-3:])
+        # print("srir: ", max_len)
+        #
+        # max_len = 0
+        # for i in ground_truth:
+        #     if  np.linalg.norm(i[-3:]) > max_len:
+        #         max_len = np.linalg.norm(i[-3:])
+        # print("ground: ", max_len)
+
+
+        # for i in range(0, min(len(ground_truth), len(srir))):
+        #     print(np.linalg.norm(ground_truth[i][-3:]), np.linalg.norm(srir[i][-3:]))
+
+
         error = get_error(ground_truth, srir, WINDOW_SIZE)
 
-        print(error)
+        print(technique, ": ", error)
 
         # do something with the error here
 

@@ -121,6 +121,7 @@ def cluster_arrs(arrs):
     sum_of_y = 0
     sum_of_z = 0
 
+    # we get the average pressure, and the direction weighed by the pressure
     for arr in arrs:
         arr = normalize_len(arr)
         sum_of_p += arr[0]
@@ -145,6 +146,7 @@ def normalize_len(arr):
 
 def get_error(ground, interp, window_size):
     #trunctate ground to window_size
+    interp = order_SRIR(interp)
     virtual_interp = []
     ground = ground[:window_size]
     bottom = 0
@@ -184,9 +186,8 @@ def get_error(ground, interp, window_size):
         virtual_interp += [virtual_src]
 
     #print(len(virtual_interp))
-    print(len(virtual_interp))
-    rms_error(ground, virtual_interp)
-    return virtual_interp
+    return rms_standard(ground, virtual_interp)
+    #return virtual_interp
         #calculate rms
         
 def rms_error(true_srir, interp_srir):
@@ -198,7 +199,7 @@ def rms_error(true_srir, interp_srir):
     for i in interp_srir:
         if i[0] == 0:
             count += 1
-    print(count)
+
 
     return -1
 
