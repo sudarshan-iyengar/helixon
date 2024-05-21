@@ -37,10 +37,14 @@ def read_SRIR(technique, position, interp_from):
 
 
 def combinePosNeg(file_pos_name, file_neg_name):
-    relative_path = 'SRIR Evaluation\\csvs\\'
+    relative_path = 'csvs\\'
+    if "SRIR Eval" not in os.getcwd():
+        relative_path = 'SRIR Evaluation\\csvs\\'
     folder_path = os.path.join(os.getcwd(), relative_path)
 
-    destination_path = 'SRIR Evaluation\\srir\\'
+    destination_path = 'srir\\'
+    if "SRIR Eval" not in os.getcwd():
+        destination_path = 'SRIR Evaluation\\srir\\'
     destination_folder_path = os.path.join(os.getcwd(), destination_path)
 
     filepos_path = os.path.join(folder_path, file_pos_name)
