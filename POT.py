@@ -35,7 +35,7 @@ class POT:
         print("DUMMY COST: " + str(self.dumCost))
 
         # sRatio optimizer
-        sVec = np.arange(0.01,1.01,0.01)
+        sVec = np.arange(0.90,1.01,0.01)
         sLen = len(sVec)
         costCoarse = np.zeros(sLen)
 
