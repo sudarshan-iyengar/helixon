@@ -5,7 +5,7 @@ import pandas as pd
 import csv
 import os
 
-from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error, rms_standard, combinePosNeg, make_negative
+from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error, rms_standard, combinePosNeg, make_negative, cluster_arrs
 
 '''
     Normalize the length of the distance vector for a given point in the SRIR
@@ -46,24 +46,24 @@ def plot2D(*arrs):
 '''
 
 
-def cluster_arrs(*arrs):
-    sum_of_p = 0
-
-    sum_of_x = 0
-    sum_of_y = 0
-    sum_of_z = 0
-
-    for arr in arrs:
-        arr = normalize_len(arr)
-        sum_of_p += arr[0]
-        sum_of_x += arr[0] * arr[1]
-        sum_of_y += arr[0] * arr[2]
-        sum_of_z += arr[0] * arr[3]
-
-    # sum_of_x = sum_of_x/sum_of_p
-
-    p_avg = sum_of_p / len(arrs)
-    return [p_avg, sum_of_x, sum_of_y, sum_of_z]
+# def cluster_arrs(*arrs):
+#     sum_of_p = 0
+#
+#     sum_of_x = 0
+#     sum_of_y = 0
+#     sum_of_z = 0
+#
+#     for arr in arrs:
+#         arr = normalize_len(arr)
+#         sum_of_p += arr[0]
+#         sum_of_x += arr[0] * arr[1]
+#         sum_of_y += arr[0] * arr[2]
+#         sum_of_z += arr[0] * arr[3]
+#
+#     # sum_of_x = sum_of_x/sum_of_p
+#
+#     p_avg = sum_of_p / len(arrs)
+#     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
 
 # def get_ground_truth(minPos, maxPos):
 #     ground_truth=[]
@@ -153,7 +153,8 @@ ground_truth_all = get_ground_truth(1,28)
 
 evaluation_techniques = ["lin", "pot", "potMue003"]#, "pot"]  # ADD NEW AS NEEDED
 NUM_POSITIONS = 28
-WINDOW_SIZE = 10000
+WINDOW_SIZE = 30000
+GROUND_CLUSTER_SIZE = 3000
 
 # for loop iterating over different evaluation techniques
 
@@ -182,19 +183,47 @@ for srir_location in srirs_to_evaluate:
 
         srir = read_SRIR(technique, position, interp_from)
         ground_truth = ground_truth_all[int(position)]
+        ground_truth = order_SRIR(ground_truth)
 
 
-        # COMMENT NEXT PART FOR NO TIME ALIGNMENT
-        max_len_int = 0
-        for i in srir:
-            if  np.linalg.norm(i[-3:]) > max_len_int:
-                max_len_int = np.linalg.norm(i[-3:])
-        #print("srir: ", max_len_int)
+        ground_truth_cluster = []
 
         max_len_ground = 0
         for i in ground_truth:
             if  np.linalg.norm(i[-3:]) > max_len_ground:
                 max_len_ground = np.linalg.norm(i[-3:])
+
+        interval = max_len_ground/GROUND_CLUSTER_SIZE
+        bottom = 0
+
+
+        for i in range(0, GROUND_CLUSTER_SIZE):
+            arr = []
+            for p in range(bottom, len(ground_truth)):
+                j=ground_truth[p]
+
+                if np.linalg.norm(j[-3:]) < (i+1)*interval:
+                    arr += [j]
+                    bottom = p
+                else:
+                    break
+            # print(arr)
+            ground_truth_cluster += [cluster_arrs(arr)]
+
+
+
+
+        # COMMENT NEXT PART FOR NO TIME ALIGNMENT
+        # max_len_int = 0
+        # for i in srir:
+        #     if  np.linalg.norm(i[-3:]) > max_len_int:
+        #         max_len_int = np.linalg.norm(i[-3:])
+        # #print("srir: ", max_len_int)
+        #
+        # max_len_ground = 0
+        # for i in ground_truth:
+        #     if  np.linalg.norm(i[-3:]) > max_len_ground:
+        #         max_len_ground = np.linalg.norm(i[-3:])
         #print("ground: ", max_len_ground)
 
 
@@ -220,7 +249,7 @@ for srir_location in srirs_to_evaluate:
         for i in srir:
             s += abs(i[0])
         #print("average p: ", s/len(srir))
-        error = get_error(ground_truth, srir, min(len(ground_truth), len(srir)))
+        error = get_error(ground_truth_cluster, srir, min(len(ground_truth_cluster), len(srir)))
 
         print(srir_location, " ", technique, ": ", error)
 
