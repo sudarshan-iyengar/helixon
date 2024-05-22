@@ -78,7 +78,7 @@ for srir_location in srirs_to_evaluate:
     ground_truth = ground_truth_all[int(position)]
     ground_truth = order_SRIR(ground_truth)
 
-    ground_truth = ground_truth[:WINDOW_SIZE]
+    ground_truth = ground_truth[400:WINDOW_SIZE+400]
 
     ground_truth_cluster = []
 
