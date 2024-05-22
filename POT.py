@@ -25,8 +25,8 @@ class POT:
         self.T = 0
 
         # Prepare scost matrix
-        C = dist(PC1['pos'], PC2['pos'], metric='sqeuclidean')#.astype(np.float16)
-        #C=self.calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0)
+        #C = dist(PC1['pos'], PC2['pos'], metric='sqeuclidean')#.astype(np.float16)
+        C=self.calc_cost(PC1['pos'], PC2['pos'], PC1['mass'], PC2['mass'], 0.003)
         print("COST MATRIX SHAPE: ")
         print(C.shape)
 
@@ -91,7 +91,7 @@ class POT:
                     self.T = last_successful_Tx
                     self.sRatOpt = last_successful_sRatOpt
                     self.sOpt = last_successful_sOpt
-                break  # Optionally, you can break the loop or continue to try the next index
+                  # Optionally, you can break the loop or continue to try the next index
 
 
     def calc_cost(self, XA, XB, PA, PB, mue):
