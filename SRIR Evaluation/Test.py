@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import csv
 import os
+import re
+
 
 from read_csv import read_SRIR, order_SRIR, get_error, combinePosNeg, make_negative, cluster_arrs
 
@@ -14,8 +16,38 @@ def get_ground_truth(minPos, maxPos):
         ground_truths += [read_SRIR("ground", pos, "0")]
     return ground_truths
 
+def match_pos_neg(pattern):
+    relative_path = 'csvs\\'
+    if "SRIR Eval" not in os.getcwd():
+        relative_path = 'SRIR Evaluation\\csvs\\'
+    folder_path = os.path.join(os.getcwd(), relative_path)
+    
+    files = os.listdir(folder_path)
+
+    file_pairs = {}
 
 
+    for file in files:
+        match = pattern.match(file)
+        if match:
+            signifier, polarity = match.groups()
+            print(signifier)
+            print (polarity)
+            if signifier not in file_pairs:
+                file_pairs[signifier] = {}
+            file_pairs[signifier][polarity] = file
+
+    for signifier, pair in file_pairs.items():
+        pos_file = pair.get('pos')
+        neg_file = pair.get('neg')
+        
+        if pos_file and neg_file:
+            print(pos_file)
+            print(neg_file)
+
+            combinePosNeg(pos_file, neg_file)
+        else:
+            print(f"Missing pair for signifier {signifier}: {pair}")
 
 
 
@@ -31,13 +63,13 @@ matching_files = glob.glob(pattern)
 for file_name in matching_files:
     make_negative(file_name)
 
+patterns = [re.compile(r'^(.*)_p_(pos|neg)\.csv$'),re.compile(r'^(.*)_doa_(pos|neg)\.csv$')]
+
+for pattern in patterns:
+    match_pos_neg(pattern)
 
 
-#make_negative("potMu0_3_1-5_p_neg.csv")
-combinePosNeg("potMu0_3_1-5_p_pos.csv", "potMu0_3_1-5_p_neg.csv")
-combinePosNeg("potMu0_3_1-5_doa_pos.csv", "potMu0_3_1-5_doa_neg.csv")
 
-# srir = read_SRIR("pot" , "2" , "1-3")
 
 # print(len(srir))
 # print(srir)
