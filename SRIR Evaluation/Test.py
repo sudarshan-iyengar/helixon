@@ -154,7 +154,7 @@ ground_truth_all = get_ground_truth(1,28)
 evaluation_techniques = ["lin", "pot", "potMue003"]#, "pot"]  # ADD NEW AS NEEDED
 NUM_POSITIONS = 28
 WINDOW_SIZE = 30000
-GROUND_CLUSTER_SIZE = 3000
+GROUND_CLUSTER_SIZE = 30000
 
 # for loop iterating over different evaluation techniques
 
@@ -176,40 +176,43 @@ srirs_to_evaluate = ['3_1-5']
 
 # for loop iterating over positions
 for srir_location in srirs_to_evaluate:
+
+    position, interp_from = srir_location.split('_')
+    ground_truth = ground_truth_all[int(position)]
+    ground_truth = order_SRIR(ground_truth)
+
+
+    # ground_truth_cluster = []
+
+    # max_len_ground = 0
+    # for i in ground_truth:
+    #     if  np.linalg.norm(i[-3:]) > max_len_ground:
+    #         max_len_ground = np.linalg.norm(i[-3:])
+
+    # interval = max_len_ground/GROUND_CLUSTER_SIZE
+    # bottom = 0
+
+    # print(interval)
+
+
+    # for i in range(0, GROUND_CLUSTER_SIZE):
+    #     arr = []
+    #     for p in range(bottom, len(ground_truth)):
+    #         j = ground_truth[p]
+
+    #         if np.linalg.norm(j[-3:]) < (i+1)*interval:
+    #             arr += [j]
+    #             bottom = p
+    #         else:
+    #             break
+    #         # print(arr)
+
+    #     ground_truth_cluster += [cluster_arrs(arr)]
+    #print (ground_truth_cluster)
     for technique in evaluation_techniques:
 
-
-        position, interp_from = srir_location.split('_')
-
         srir = read_SRIR(technique, position, interp_from)
-        ground_truth = ground_truth_all[int(position)]
-        ground_truth = order_SRIR(ground_truth)
-
-
-        ground_truth_cluster = []
-
-        max_len_ground = 0
-        for i in ground_truth:
-            if  np.linalg.norm(i[-3:]) > max_len_ground:
-                max_len_ground = np.linalg.norm(i[-3:])
-
-        interval = max_len_ground/GROUND_CLUSTER_SIZE
-        bottom = 0
-
-
-        for i in range(0, GROUND_CLUSTER_SIZE):
-            arr = []
-            for p in range(bottom, len(ground_truth)):
-                j=ground_truth[p]
-
-                if np.linalg.norm(j[-3:]) < (i+1)*interval:
-                    arr += [j]
-                    bottom = p
-                else:
-                    break
-            # print(arr)
-            ground_truth_cluster += [cluster_arrs(arr)]
-
+        
 
 
 
@@ -249,7 +252,7 @@ for srir_location in srirs_to_evaluate:
         for i in srir:
             s += abs(i[0])
         #print("average p: ", s/len(srir))
-        error = get_error(ground_truth_cluster, srir, min(len(ground_truth_cluster), len(srir)))
+        error = get_error(ground_truth, srir, min(len(ground_truth), len(srir)))
 
         print(srir_location, " ", technique, ": ", error)
 
