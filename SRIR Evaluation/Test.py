@@ -31,8 +31,6 @@ def match_pos_neg(pattern):
         match = pattern.match(file)
         if match:
             signifier, polarity = match.groups()
-            print(signifier)
-            print (polarity)
             if signifier not in file_pairs:
                 file_pairs[signifier] = {}
             file_pairs[signifier][polarity] = file
@@ -42,8 +40,6 @@ def match_pos_neg(pattern):
         neg_file = pair.get('neg')
         
         if pos_file and neg_file:
-            print(pos_file)
-            print(neg_file)
 
             combinePosNeg(pos_file, neg_file)
         else:
