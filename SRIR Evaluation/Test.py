@@ -136,9 +136,9 @@ def get_ground_truth(minPos, maxPos):
 # a3 = [1, 2,-2,0]
 
 
-make_negative("pot_3_1-5_p_neg.csv")
-combinePosNeg("pot_3_1-5_p_pos.csv", "pot_3_1-5_p_neg.csv")
-combinePosNeg("pot_3_1-5_doa_pos.csv", "pot_3_1-5_doa_neg.csv")
+make_negative("potMue003_3_1-5_p_neg.csv")
+combinePosNeg("potMue003_3_1-5_p_pos.csv", "potMue003_3_1-5_p_neg.csv")
+combinePosNeg("potMue003_3_1-5_doa_pos.csv", "potMue003_3_1-5_doa_neg.csv")
 
 # srir = read_SRIR("pot" , "2" , "1-3")
 
@@ -151,7 +151,7 @@ ground_truth_all = get_ground_truth(1,28)
 # print(len(ground_truth_all))
 
 
-evaluation_techniques = ["lin", "pot"]#, "pot"]  # ADD NEW AS NEEDED
+evaluation_techniques = ["lin", "pot", "potMue003"]#, "pot"]  # ADD NEW AS NEEDED
 NUM_POSITIONS = 28
 WINDOW_SIZE = 10000
 
@@ -168,7 +168,7 @@ for i in range(2, 16):
     srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
 
 # for now hardcode list:
-srirs_to_evaluate = ['2_1-3','3_1-5']
+srirs_to_evaluate = ['3_1-5']
 
 # print(srirs_to_evaluate)
 
@@ -183,17 +183,34 @@ for srir_location in srirs_to_evaluate:
         srir = read_SRIR(technique, position, interp_from)
         ground_truth = ground_truth_all[int(position)]
 
-        # max_len = 0
-        # for i in srir:
-        #     if  np.linalg.norm(i[-3:]) > max_len:
-        #         max_len = np.linalg.norm(i[-3:])
-        # print("srir: ", max_len)
-        #
-        # max_len = 0
-        # for i in ground_truth:
-        #     if  np.linalg.norm(i[-3:]) > max_len:
-        #         max_len = np.linalg.norm(i[-3:])
-        # print("ground: ", max_len)
+
+        # COMMENT NEXT PART FOR NO TIME ALIGNMENT
+        max_len_int = 0
+        for i in srir:
+            if  np.linalg.norm(i[-3:]) > max_len_int:
+                max_len_int = np.linalg.norm(i[-3:])
+        #print("srir: ", max_len_int)
+
+        max_len_ground = 0
+        for i in ground_truth:
+            if  np.linalg.norm(i[-3:]) > max_len_ground:
+                max_len_ground = np.linalg.norm(i[-3:])
+        #print("ground: ", max_len_ground)
+
+
+        # index_to_remove = []
+        # if max_len_int > max_len_ground:
+        #     for i in range(0, len(srir)):
+        #         if np.linalg.norm(srir[i][-3:]) > max_len_ground:
+        #             index_to_remove += [i]
+        #     for i in reversed(index_to_remove):
+        #         del srir[i]
+        # else:
+        #     for i in range(0, len(ground_truth)):
+        #         if np.linalg.norm(ground_truth[i][-3:]) > max_len_int:
+        #             index_to_remove += [i]
+        #     for i in reversed(index_to_remove):
+        #         del ground_truth[i]
 
 
         # for i in range(0, min(len(ground_truth), len(srir))):
@@ -202,8 +219,8 @@ for srir_location in srirs_to_evaluate:
         s = 0
         for i in srir:
             s += abs(i[0])
-        print("average p: ", s/len(srir))
-        error = get_error(ground_truth, srir, WINDOW_SIZE)
+        #print("average p: ", s/len(srir))
+        error = get_error(ground_truth, srir, min(len(ground_truth), len(srir)))
 
         print(srir_location, " ", technique, ": ", error)
 

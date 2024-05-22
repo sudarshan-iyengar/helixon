@@ -266,7 +266,7 @@ def get_error(ground, interp, window_size):
         virtual_src = cluster_arrs(cluster)
         virtual_interp += [virtual_src]
 
-    print(virtual_interp)
+    #print(virtual_interp)
     #print(len(virtual_interp))
     return rms_standard(ground, virtual_interp)
     #return virtual_interp
