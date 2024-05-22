@@ -182,37 +182,43 @@ for srir_location in srirs_to_evaluate:
     ground_truth = order_SRIR(ground_truth)
 
 
-    # ground_truth_cluster = []
+    ground_truth_cluster = []
 
-    # max_len_ground = 0
-    # for i in ground_truth:
-    #     if  np.linalg.norm(i[-3:]) > max_len_ground:
-    #         max_len_ground = np.linalg.norm(i[-3:])
+    max_len_ground = 0
+    for i in ground_truth:
+        if  np.linalg.norm(i[-3:]) > max_len_ground:
+            max_len_ground = np.linalg.norm(i[-3:])
 
-    # interval = max_len_ground/GROUND_CLUSTER_SIZE
-    # bottom = 0
+    interval = max_len_ground/GROUND_CLUSTER_SIZE
+    bottom = 0
 
     # print(interval)
 
 
-    # for i in range(0, GROUND_CLUSTER_SIZE):
-    #     arr = []
-    #     for p in range(bottom, len(ground_truth)):
-    #         j = ground_truth[p]
+    for i in range(0, GROUND_CLUSTER_SIZE):
+        arr = []
+        for p in range(bottom, len(ground_truth)):
+            j = ground_truth[p]
 
-    #         if np.linalg.norm(j[-3:]) < (i+1)*interval:
-    #             arr += [j]
-    #             bottom = p
-    #         else:
-    #             break
-    #         # print(arr)
+            if np.linalg.norm(j[-3:]) < (i+1)*interval:
+                arr += [j]
+                bottom = p
+            else:
+                break
+            # print(arr)
 
-    #     ground_truth_cluster += [cluster_arrs(arr)]
+        ground_truth_cluster += [cluster_arrs(arr)]
     #print (ground_truth_cluster)
     for technique in evaluation_techniques:
 
         srir = read_SRIR(technique, position, interp_from)
-        
+        error = get_error(ground_truth_cluster, srir, min(len(ground_truth_cluster), len(srir)))
+
+        print(srir_location, " ", technique, ": ", error)
+
+        # do something with the error here
+
+
 
 
 
@@ -243,19 +249,3 @@ for srir_location in srirs_to_evaluate:
         #             index_to_remove += [i]
         #     for i in reversed(index_to_remove):
         #         del ground_truth[i]
-
-
-        # for i in range(0, min(len(ground_truth), len(srir))):
-           # print(ground_truth[i], srir[i])
-           # print(np.linalg.norm(ground_truth[i][-3:]), np.linalg.norm(srir[i][-3:]))
-        s = 0
-        for i in srir:
-            s += abs(i[0])
-        #print("average p: ", s/len(srir))
-        error = get_error(ground_truth, srir, min(len(ground_truth), len(srir)))
-
-        print(srir_location, " ", technique, ": ", error)
-
-        # do something with the error here
-
-
