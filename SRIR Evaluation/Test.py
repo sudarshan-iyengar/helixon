@@ -1,3 +1,4 @@
+import glob
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,91 +6,7 @@ import pandas as pd
 import csv
 import os
 
-from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error, rms_standard, combinePosNeg, make_negative, cluster_arrs
-
-'''
-    Normalize the length of the distance vector for a given point in the SRIR
-'''
-
-
-def normalize_len(arr):
-    if len(arr) < 4:
-        return arr
-    arr[-3:] = arr[-3:] / np.linalg.norm(arr[-3:])
-    return arr
-
-
-'''
-    Plot x and y of a set of SRIR points
-'''
-
-
-def plot2D(*arrs):
-    # Extract x, y coordinates
-    points = np.array(arrs)
-    x_coords = points[:, 1]
-    y_coords = points[:, 2]
-    # Create the plot
-    plt.figure()
-    # Plot the points
-    plt.scatter(x_coords, y_coords, c='r', marker='o')
-    # Set labels
-    plt.xlabel('X')
-    plt.ylabel('Y')
-    # Show the plot
-    plt.grid(True)
-    plt.show()
-
-
-'''
-    Calculate average virtual source
-'''
-
-
-# def cluster_arrs(*arrs):
-#     sum_of_p = 0
-#
-#     sum_of_x = 0
-#     sum_of_y = 0
-#     sum_of_z = 0
-#
-#     for arr in arrs:
-#         arr = normalize_len(arr)
-#         sum_of_p += arr[0]
-#         sum_of_x += arr[0] * arr[1]
-#         sum_of_y += arr[0] * arr[2]
-#         sum_of_z += arr[0] * arr[3]
-#
-#     # sum_of_x = sum_of_x/sum_of_p
-#
-#     p_avg = sum_of_p / len(arrs)
-#     return [p_avg, sum_of_x, sum_of_y, sum_of_z]
-
-# def get_ground_truth(minPos, maxPos):
-#     ground_truth=[]
-#     for pos in range(minPos, maxPos):
-#         ground_truth += [read_SRIR("ground", pos, "0")]
-#     return ground_truth
-
-
-
-# def get_all_SRIR(minPos, maxPos):
-#     ground_arr = get_ground_truth(minPos, maxPos)
-#
-#     for technique in techniqueArr:
-#         for pos in range(minPos, maxPos):
-#
-#             ground = ground_arr[pos]
-#
-#             interp_loc_arr = []
-#             # figure out interpolation locations and add to array
-#
-#             for interp_loc in interp_loc_arr:
-#                 interp = read_SRIR(technique, pos, interp_loc)
-#                 error = rms_standard(interp, ground)
-#
-#     return -1
-
+from read_csv import read_SRIR, order_SRIR, get_error, combinePosNeg, make_negative, cluster_arrs
 
 def get_ground_truth(minPos, maxPos):
     ground_truths = []
@@ -98,47 +15,27 @@ def get_ground_truth(minPos, maxPos):
     return ground_truths
 
 
-# pot_srir = get_SRIR()
-# true_srir = order_SRIR(read_SRIR('pressure12.csv', 'doa12.csv'))
-
-# print(len(true_srir))
-# for k in true_srir:
-#     print(np.linalg.norm(k[-3:]))
-
-# for i in range(0, len(true_srir)-1):
-#     print(np.linalg.norm(true_srir[i+1][-3:])-np.linalg.norm(true_srir[i][-3:]))
 
 
-# print(len(true_srir))
-
-#
-# # Concatenate DataFrames into one long array
-# combined_df = pd.concat(srir, ignore_index=True)
-#
-# # Convert DataFrame to array
-# combined_array = combined_df.to_numpy()
 
 
-#combinePosNeg ("pot_2_1-3_p_pos.csv", "pot_2_1-3_p_neg.csv") #this is ok :)
-# print(read_SRIR("pot", "12", "11-13")[:3])
 
-# test = get_error(true_srir, pot_srir, 40000)
-# snipped = true_srir[:40000]
-# #print(len(test))
-# #print(len(true_srir[:40000]))
-# print (max(test[0]))
-# print (max(snipped[0]))
-# print (rms_standard(snipped, test))
+relative_path = 'csvs\\'
+if "SRIR Eval" not in os.getcwd():
+    relative_path = 'SRIR Evaluation\\csvs\\'
+folder_path = os.path.join(os.getcwd(), relative_path)
+pattern = os.path.join(folder_path, '*_p_neg.csv')
 
+matching_files = glob.glob(pattern)
 
-# a1 = [1, 2,4,2]
-# a2 = [2, 2,2,0]
-# a3 = [1, 2,-2,0]
+for file_name in matching_files:
+    make_negative(file_name)
 
 
-make_negative("potMue003_3_1-5_p_neg.csv")
-combinePosNeg("potMue003_3_1-5_p_pos.csv", "potMue003_3_1-5_p_neg.csv")
-combinePosNeg("potMue003_3_1-5_doa_pos.csv", "potMue003_3_1-5_doa_neg.csv")
+
+#make_negative("potMu0_3_1-5_p_neg.csv")
+combinePosNeg("potMu0_3_1-5_p_pos.csv", "potMu0_3_1-5_p_neg.csv")
+combinePosNeg("potMu0_3_1-5_doa_pos.csv", "potMu0_3_1-5_doa_neg.csv")
 
 # srir = read_SRIR("pot" , "2" , "1-3")
 
@@ -151,7 +48,7 @@ ground_truth_all = get_ground_truth(1,28)
 # print(len(ground_truth_all))
 
 
-evaluation_techniques = ["lin", "pot", "potMue003"]#, "pot"]  # ADD NEW AS NEEDED
+evaluation_techniques = ["lin", "pot",  "potMu0", "potMue003"]#, "pot"]  # ADD NEW AS NEEDED
 NUM_POSITIONS = 28
 WINDOW_SIZE = 5000
 GROUND_CLUSTER_SIZE = 500
@@ -190,12 +87,10 @@ for srir_location in srirs_to_evaluate:
         if np.linalg.norm(i[-3:]) > max_len_ground:
             max_len_ground = np.linalg.norm(i[-3:])
 
-    print("max len: ", max_len_ground)
+    # print("max len: ", max_len_ground)
     interval = max_len_ground/GROUND_CLUSTER_SIZE
     bottom = 0
-    print("interval: ", interval)
-
-    # print(interval)
+    # print("interval: ", interval)
 
 
     for i in range(0, GROUND_CLUSTER_SIZE):
