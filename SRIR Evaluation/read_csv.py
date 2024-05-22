@@ -269,7 +269,7 @@ def get_error(ground, interp, window_size):
     #print(virtual_interp)
     #print(len(virtual_interp))
     return rms_standard(ground, virtual_interp)
-    #return virtual_interp
+    #return rms_dist(ground, virtual_interp)
         #calculate rms
         
 def rms_error(true_srir, interp_srir):
@@ -311,3 +311,28 @@ def rms_standard(true_srir, interp_srir):
 
     return [avg_p/len(true_srir), err_p, err_doa*180/np.pi]
     #return sum(doa_sqrd)/30000
+
+
+def rms_dist(ground_truth, interp):
+    sum_dist = 0
+
+    for i in range(0, len(ground_truth)):
+        # Extract P, x, y, z from vectors A and B
+        P_A, x_A, y_A, z_A = ground_truth[i]
+        P_B, x_B, y_B, z_B = interp[i]
+
+        # Scale x, y, z to the length of P for both vectors
+        scale_A = 0
+        scale_B = 0
+        if np.linalg.norm([x_A, y_A, z_A]) != 0:
+            scale_A = P_A / np.linalg.norm([x_A, y_A, z_A])
+        if np.linalg.norm([x_B, y_B, z_B]) != 0:
+            scale_B = P_B / np.linalg.norm([x_B, y_B, z_B])
+
+        scaled_A = np.array([x_A, y_A, z_A]) * scale_A
+        scaled_B = np.array([x_B, y_B, z_B]) * scale_B
+
+        # Calculate the Euclidean distance between the scaled vectors
+        distance = np.linalg.norm(scaled_A - scaled_B)
+        sum_dist += distance
+    return sum_dist/len(ground_truth)

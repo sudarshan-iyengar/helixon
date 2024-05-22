@@ -147,14 +147,14 @@ combinePosNeg("potMue003_3_1-5_doa_pos.csv", "potMue003_3_1-5_doa_neg.csv")
 # read all ground truths and put in array
 # TODO: IMPLEMENT READ ALL GROUND TRUTHS -> STORE IN ground_truth
 ground_truth_all = get_ground_truth(1,28)
-# print(ground_truth_all[5])
+# print(groun 30000d_truth_all[5])
 # print(len(ground_truth_all))
 
 
 evaluation_techniques = ["lin", "pot", "potMue003"]#, "pot"]  # ADD NEW AS NEEDED
 NUM_POSITIONS = 28
-WINDOW_SIZE = 30000
-GROUND_CLUSTER_SIZE = 30000
+WINDOW_SIZE = 5000
+GROUND_CLUSTER_SIZE = 500
 
 # for loop iterating over different evaluation techniques
 
@@ -181,16 +181,19 @@ for srir_location in srirs_to_evaluate:
     ground_truth = ground_truth_all[int(position)]
     ground_truth = order_SRIR(ground_truth)
 
+    ground_truth = ground_truth[:5000]
 
     ground_truth_cluster = []
 
     max_len_ground = 0
     for i in ground_truth:
-        if  np.linalg.norm(i[-3:]) > max_len_ground:
+        if np.linalg.norm(i[-3:]) > max_len_ground:
             max_len_ground = np.linalg.norm(i[-3:])
 
+    print("max len: ", max_len_ground)
     interval = max_len_ground/GROUND_CLUSTER_SIZE
     bottom = 0
+    print("interval: ", interval)
 
     # print(interval)
 
@@ -202,8 +205,8 @@ for srir_location in srirs_to_evaluate:
 
             if np.linalg.norm(j[-3:]) < (i+1)*interval:
                 arr += [j]
-                bottom = p
             else:
+                bottom = p
                 break
             # print(arr)
 
