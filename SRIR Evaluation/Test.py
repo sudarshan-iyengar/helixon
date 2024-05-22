@@ -5,7 +5,7 @@ import pandas as pd
 import csv
 import os
 
-from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error, rms_standard, combinePosNeg
+from read_csv import get_SRIR, read_SRIR, order_SRIR, get_error, rms_standard, combinePosNeg, make_negative
 
 '''
     Normalize the length of the distance vector for a given point in the SRIR
@@ -119,7 +119,7 @@ def get_ground_truth(minPos, maxPos):
 # combined_array = combined_df.to_numpy()
 
 
-# combinePosNeg ("11_13_pos12_pos.csv", "11_13_pos12_neg.csv") #this is ok :)
+#combinePosNeg ("pot_2_1-3_p_pos.csv", "pot_2_1-3_p_neg.csv") #this is ok :)
 # print(read_SRIR("pot", "12", "11-13")[:3])
 
 # test = get_error(true_srir, pot_srir, 40000)
@@ -135,7 +135,11 @@ def get_ground_truth(minPos, maxPos):
 # a2 = [2, 2,2,0]
 # a3 = [1, 2,-2,0]
 
-# combinePosNeg("pot_2_1-3_doa_pos.csv", "pot_2_1-3_doa_neg.csv")
+
+make_negative("pot_3_1-5_p_neg.csv")
+combinePosNeg("pot_3_1-5_p_pos.csv", "pot_3_1-5_p_neg.csv")
+combinePosNeg("pot_3_1-5_doa_pos.csv", "pot_3_1-5_doa_neg.csv")
+
 # srir = read_SRIR("pot" , "2" , "1-3")
 
 # print(len(srir))
@@ -149,7 +153,7 @@ ground_truth_all = get_ground_truth(1,28)
 
 evaluation_techniques = ["lin", "pot"]#, "pot"]  # ADD NEW AS NEEDED
 NUM_POSITIONS = 28
-WINDOW_SIZE = 30000
+WINDOW_SIZE = 10000
 
 # for loop iterating over different evaluation techniques
 
@@ -164,14 +168,16 @@ for i in range(2, 16):
     srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
 
 # for now hardcode list:
-srirs_to_evaluate = ['2_1-3']
+srirs_to_evaluate = ['2_1-3','3_1-5']
 
 # print(srirs_to_evaluate)
 
-for technique in evaluation_techniques:
 
-    # for loop iterating over positions
-    for srir_location in srirs_to_evaluate:
+# for loop iterating over positions
+for srir_location in srirs_to_evaluate:
+    for technique in evaluation_techniques:
+
+
         position, interp_from = srir_location.split('_')
 
         srir = read_SRIR(technique, position, interp_from)
@@ -193,11 +199,13 @@ for technique in evaluation_techniques:
         # for i in range(0, min(len(ground_truth), len(srir))):
            # print(ground_truth[i], srir[i])
            # print(np.linalg.norm(ground_truth[i][-3:]), np.linalg.norm(srir[i][-3:]))
-
-
+        s = 0
+        for i in srir:
+            s += abs(i[0])
+        print("average p: ", s/len(srir))
         error = get_error(ground_truth, srir, WINDOW_SIZE)
 
-        print(technique, ": ", error)
+        print(srir_location, " ", technique, ": ", error)
 
         # do something with the error here
 

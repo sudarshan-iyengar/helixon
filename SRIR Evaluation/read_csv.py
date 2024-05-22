@@ -2,7 +2,27 @@ import numpy as np
 import pandas as pd
 import csv
 import os
+import math
 
+def unit_vector(vector):
+    """ Returns the unit vector of the vector.  """
+    return vector / np.linalg.norm(vector)
+
+def angle_between(v1, v2):
+    """ Returns the angle in radians between vectors 'v1' and 'v2'::
+
+            >>> angle_between((1, 0, 0), (0, 1, 0))
+            1.5707963267948966
+            >>> angle_between((1, 0, 0), (1, 0, 0))
+            0.0
+            >>> angle_between((1, 0, 0), (-1, 0, 0))
+            3.141592653589793
+    """
+    if np.linalg.norm(v1) == 0 or np.linalg.norm(v2) == 0:
+        return 0
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 def get_SRIR():
     srir_pos = read_SRIR('11_13_pos12_p_pos.csv', '11_13_pos12_pos.csv')
@@ -173,9 +193,9 @@ def cluster_arrs(arrs):
 
         arr = normalize_len(arr)
         sum_of_p += arr[0]
-        w_sum_of_x += arr[0]*arr[1]
-        w_sum_of_y += arr[0]*arr[2]
-        w_sum_of_z += arr[0]*arr[3]
+        w_sum_of_x += abs(arr[0])*arr[1]
+        w_sum_of_y += abs(arr[0])*arr[2]
+        w_sum_of_z += abs(arr[0])*arr[3]
 
 
 
@@ -209,6 +229,7 @@ def get_error(ground, interp, window_size):
     interp = order_SRIR(interp)
     virtual_interp = []
     ground = ground[:window_size]
+    interp = interp[:window_size]
     bottom = 0
     for i in range(0, len(ground)):
         # if i % 5000 == 0:
@@ -245,6 +266,7 @@ def get_error(ground, interp, window_size):
         virtual_src = cluster_arrs(cluster)
         virtual_interp += [virtual_src]
 
+    print(virtual_interp)
     #print(len(virtual_interp))
     return rms_standard(ground, virtual_interp)
     #return virtual_interp
@@ -270,14 +292,16 @@ def rms_error(true_srir, interp_srir):
 def rms_standard(true_srir, interp_srir):
     p_sqrd = []
     doa_sqrd = []
+    avg_p = 0
 
     normalize_len(true_srir)
     for i in range (0, len(true_srir)):
 
         #pressure error
+        avg_p += abs(true_srir[i][0])
         e1 = (true_srir[i][0] - interp_srir[i][0])**2
-        e2 = np.sqrt((true_srir[i][1] - interp_srir[i][1])**2 + (true_srir[i][2] - interp_srir[i][2])**2 + (true_srir[i][3] - interp_srir[i][3])**2)
-
+        #e2 = np.sqrt((true_srir[i][1] - interp_srir[i][1])**2 + (true_srir[i][2] - interp_srir[i][2])**2 + (true_srir[i][3] - interp_srir[i][3])**2)
+        e2 = angle_between(true_srir[i][-3:], interp_srir[i][-3:])
         p_sqrd += [e1]
         doa_sqrd += [e2]
 
@@ -285,4 +309,5 @@ def rms_standard(true_srir, interp_srir):
     err_p = np.sqrt(np.sum(p_sqrd)/len(p_sqrd))
     err_doa = np.sum(doa_sqrd)/len(doa_sqrd)
 
-    return [err_p, err_doa]
+    return [avg_p/len(true_srir), err_p, err_doa*180/np.pi]
+    #return sum(doa_sqrd)/30000
