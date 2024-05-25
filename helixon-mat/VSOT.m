@@ -111,24 +111,24 @@ classdef VSOT < handle
             % How does it handle unbalanced mass?
             % Normalization for transport map; rescale for interp
             
-            unmapped1 = PC1.mass ./ sum(PC1.mass);
-            unmapped2 = PC2.mass ./ sum(PC2.mass);
-            [~, sortInds] = sort(obj.C(:));
-            [i, j] = ind2sub(size(C),sortInds);
-            obj.Tg = zeros(size(C));
+            % unmapped1 = PC1.mass ./ sum(PC1.mass);
+            % unmapped2 = PC2.mass ./ sum(PC2.mass);
+            % [~, sortInds] = sort(obj.C(:));
+            % [i, j] = ind2sub(size(C),sortInds);
+            % obj.Tg = zeros(size(C));
             % go through sorted entries of C
-            for ii = 1:length(sortInds)
+            %for ii = 1:length(sortInds)
                 % assign as much unmapped mass as possible
-                mass = min(unmapped1(i(ii)), unmapped2(j(ii)));
-                obj.Tg(i(ii),j(ii)) = mass;
-                unmapped1(i(ii)) = unmapped1(i(ii)) - mass;
-                unmapped2(j(ii)) = unmapped2(j(ii)) - mass;
+                % mass = min(unmapped1(i(ii)), unmapped2(j(ii)));
+                % obj.Tg(i(ii),j(ii)) = mass;
+                % unmapped1(i(ii)) = unmapped1(i(ii)) - mass;
+                % unmapped2(j(ii)) = unmapped2(j(ii)) - mass;
                 
                 % stopping criterion
-                if min(sum(unmapped1),sum(unmapped2) == 0)
-                    break;
-                end
-            end
+                % if min(sum(unmapped1),sum(unmapped2) == 0)
+                    %break;
+                %end
+            %end
             
         end % end function
         
