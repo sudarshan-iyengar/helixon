@@ -7,13 +7,15 @@ doa_files = {'SRIR40k/SRIR40k/ground_1_0_doa.csv', 'SRIR40k/SRIR40k/ground_15_0_
 p_w_pos = {};
 p_w_neg = {};
 doa_data = {};
-
+p_original = {};
 for i = 1:length(pressure_files)
     df_pressure = csvread(pressure_files{i});
     df_pressure = df_pressure(401:20000); % Adjust indices according to your data
     disp("PRESSURE SHAPE: ");
     disp(size(df_pressure));
     disp(df_pressure(1));
+    p_original{i} = df_pressure;
+
 
     
     df_doa = csvread(doa_files{i});
@@ -38,26 +40,41 @@ p_w_neg{1} = p_w_neg{1}(1:1000);
 p_w_neg{2} = p_w_neg{2}(1:1000);
 
 % Create point clouds for positive and negative pressures
-PC2_pos = struct('pos', doa_data{1}, 'mass', p_w_pos{1}, 'n', length(p_w_pos{1}));
-PC4_pos = struct('pos', doa_data{2}, 'mass', p_w_pos{2}, 'n', length(p_w_pos{2}));
+PC1_pos = struct('pos', doa_data{1}, 'mass', p_w_pos{1}, 'n', length(p_w_pos{1}));
+PC2_pos = struct('pos', doa_data{2}, 'mass', p_w_pos{2}, 'n', length(p_w_pos{2}));
 
-PC2_neg = struct('pos', doa_data{1}, 'mass', p_w_neg{1}, 'n', length(p_w_neg{1}));
-PC4_neg = struct('pos', doa_data{2}, 'mass', p_w_neg{2}, 'n', length(p_w_neg{2}));
+PC1_neg = struct('pos', doa_data{1}, 'mass', p_w_neg{1}, 'n', length(p_w_neg{1}));
+PC2_neg = struct('pos', doa_data{2}, 'mass', p_w_neg{2}, 'n', length(p_w_neg{2}));
+
+PC1_original = struct('pos', doa_data{1}, 'mass', p_original{1}(1:1000), 'n', length(p_original{1}(1:1000)));
+PC2_original = struct('pos', doa_data{2}, 'mass', p_original{2}(1:1000), 'n', length(p_original{2}(1:1000)));
 
 disp("CHECK IF DIMENSIONS ARE RIGHT: ");
 disp(size(PC2_neg.pos));
 disp(size(PC2_pos.mass));
 disp(PC2_pos.n);
+%%  Cost Matrix
+mu = 0.5;
+C_euclidean = pdist2(PC1_pos.pos, PC2_pos.pos,"squaredeuclidean");
+%save("potCe.mat",'C_eu', '-mat');
+sign_mask = (PC1_original.mass.*PC2_original.mass)<0;
+%disp(size(sign_mask));
+pressure_diff = abs(PC1_original.mass-PC2_original.mass);
+%disp(size(pressure_diff));
+penalty = mu * pressure_diff .* sign_mask;
+%disp(size(penalty));
+C = C_euclidean+penalty;
+
 
 %% POT
 % Set parameters for VSOT
-distEx = 1.05; % Example value, adjust as needed
-distTol = 0.05; % Example value, adjust as needed
+distEx = 1.20; % Example value, adjust as needed
+distTol = 0.01; % Example value, adjust as needed
 
-pot_pos = VSOT(PC2_pos, PC4_pos, distEx, distTol);
+pot_pos = VSOT(PC1_pos, PC2_pos, C, distEx, distTol);
 
 %%
-pot_neg = VSOT(PC2_neg, PC4_neg, distEx, distTol);
+pot_neg = VSOT(PC1_neg, PC2_neg, C, distEx, distTol);
 
 %% 
 % Interpolation with k = 0.5
@@ -89,5 +106,4 @@ figure;
 plot(time,ir);
 title("IR");
 grid on;
-
 

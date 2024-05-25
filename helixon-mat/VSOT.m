@@ -27,7 +27,7 @@ classdef VSOT < handle
     end
     
     methods
-        function obj = VSOT(PC1, PC2, distEx, distTol)
+        function obj = VSOT(PC1, PC2, C, distEx, distTol)
             %VSOT Constructor
             %   Takes in two point clouds and the virtual cost parameter
             
@@ -36,17 +36,9 @@ classdef VSOT < handle
             obj.PC2 = PC2;
             obj.distEx = distEx;
             obj.distTol = distTol;
-            
+             
             % Prepare cost matrix (distance-based)
-            q = 2;
-            mu = 0.5;
-            %C = zeros(PC1.n, PC2.n);
-            C = pdist2(PC1.pos, PC2.pos,"squaredeuclidean");
-            sign_mask = (PC1.mass(:)*PC2.mass(:)')<0;
-            pressure_diff = abs(PC1.mass(:)-PC2.mass(:)');
-            penalty = mu*pressure_diff*sign_mask;
-            C = C+penalty;
-            disp(size(C))
+
             % for ii = 1:PC1.n
                 %for jj = 1:PC2.n
                     %C(ii,jj) = (norm(PC1.pos(ii,:) - PC2.pos(jj,:)) - obj.distEx).^q; % normal cost
