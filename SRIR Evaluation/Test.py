@@ -76,7 +76,8 @@ ground_truth_all = get_ground_truth(1,28)
 # print(len(ground_truth_all))
 
 
-evaluation_techniques = ["lin", "pot",  "potMu0", "potMue003"]#, "pot"]  # ADD NEW AS NEEDED
+evaluation_techniques = ["lin", "potMat", "potMatMu003", "potMat", "potMatMU5"]#, "pot"]  # ADD NEW AS NEEDED
+#evaluation_techniques = ["lin", "pot", "potMat", "potMue003", "potMu0"]
 NUM_POSITIONS = 28
 WINDOW_SIZE = 5000
 GROUND_CLUSTER_SIZE = 500
@@ -94,7 +95,8 @@ for i in range(2, 16):
     srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
 
 # for now hardcode list:
-srirs_to_evaluate = ['3_1-5']
+srirs_to_evaluate = ['8_1-15']
+#srirs_to_evaluate = ['3_1-5']
 
 # print(srirs_to_evaluate)
 
