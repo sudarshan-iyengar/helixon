@@ -76,8 +76,8 @@ ground_truth_all = get_ground_truth(1,28)
 # print(len(ground_truth_all))
 
 
-evaluation_techniques = ["lin", "potMat", "potMatMu003", "potMat", "potMatMU5"]#, "pot"]  # ADD NEW AS NEEDED
-#evaluation_techniques = ["lin", "pot", "potMat", "potMue003", "potMu0"]
+#evaluation_techniques = ["lin", "potMat", "potMatMu003", "potMatMu5"]#, "pot"]  # ADD NEW AS NEEDED
+evaluation_techniques = ["lin", "potMat", "potMatMu0001", "potMatMu0003", "potMatMu0010",  "potMatMu0030", "potMatMu0100", "potMatMu0300", "potMatMu1000", "potMatMu3000", "potMatMu9000"]
 NUM_POSITIONS = 28
 WINDOW_SIZE = 5000
 GROUND_CLUSTER_SIZE = 500
