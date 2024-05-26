@@ -48,21 +48,21 @@ def match_pos_neg(pattern):
 
 
 
-relative_path = 'csvs\\'
-if "SRIR Eval" not in os.getcwd():
-    relative_path = 'SRIR Evaluation\\csvs\\'
-folder_path = os.path.join(os.getcwd(), relative_path)
-pattern = os.path.join(folder_path, '*_p_neg.csv')
+# relative_path = 'csvs\\'
+# if "SRIR Eval" not in os.getcwd():
+#     relative_path = 'SRIR Evaluation\\csvs\\'
+# folder_path = os.path.join(os.getcwd(), relative_path)
+# pattern = os.path.join(folder_path, '*_p_neg.csv')
 
-matching_files = glob.glob(pattern)
+# matching_files = glob.glob(pattern)
 
-for file_name in matching_files:
-    make_negative(file_name)
+# for file_name in matching_files:
+#     make_negative(file_name)
 
-patterns = [re.compile(r'^(.*)_p_(pos|neg)\.csv$'),re.compile(r'^(.*)_doa_(pos|neg)\.csv$')]
+# patterns = [re.compile(r'^(.*)_p_(pos|neg)\.csv$'),re.compile(r'^(.*)_doa_(pos|neg)\.csv$')]
 
-for pattern in patterns:
-    match_pos_neg(pattern)
+# for pattern in patterns:
+#     match_pos_neg(pattern)
 
 
 
@@ -78,8 +78,9 @@ ground_truth_all = get_ground_truth(1,28)
 
 #evaluation_techniques = ["lin", "potMat", "potMatMu003", "potMatMu5"]#, "pot"]  # ADD NEW AS NEEDED
 evaluation_techniques = ["lin", "potMat", "potMatMu0001", "potMatMu0003", "potMatMu0010",  "potMatMu0030", "potMatMu0100", "potMatMu0300", "potMatMu1000", "potMatMu3000", "potMatMu9000"]
+evaluation_techniques = ["potMatMu0100"]
 NUM_POSITIONS = 28
-WINDOW_SIZE = 5000
+WINDOW_SIZE =1000
 GROUND_CLUSTER_SIZE = 500
 
 # for loop iterating over different evaluation techniques
@@ -95,7 +96,7 @@ for i in range(2, 16):
     srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
 
 # for now hardcode list:
-srirs_to_evaluate = ['8_1-15']
+srirs_to_evaluate = ['8_1-15', '8_5-9', '8_7-9']
 #srirs_to_evaluate = ['3_1-5']
 
 # print(srirs_to_evaluate)
