@@ -221,6 +221,8 @@ def cluster_arrs(arrs):
 def normalize_len(arr):
     if len(arr) < 4:
         return arr
+    if np.linalg.norm(arr[-3:]) == 0:
+        return arr
     arr[-3:] = arr[-3:] / np.linalg.norm(arr[-3:])
     return arr
 

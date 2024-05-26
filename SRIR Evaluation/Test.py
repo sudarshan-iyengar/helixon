@@ -94,7 +94,7 @@ GROUND_CLUSTER_SIZE = 500
 srirs_to_evaluate = []
 for i in range(2, 16):
     srirs_to_evaluate.append(f"{i}_1-{2 * i - 1}")
-
+print(srirs_to_evaluate)
 # for now hardcode list:
 srirs_to_evaluate = ['8_1-15', '8_5-9', '8_7-9']
 #srirs_to_evaluate = ['3_1-5']
